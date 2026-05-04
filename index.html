@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuantEdge — AI-Powered Crypto Trading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --bg-deep:       #050d1a;
+      --bg-mid:        #080f1f;
+      --bg-card:       rgba(255,255,255,0.035);
+      --bg-card-hover: rgba(0,212,255,0.07);
+      --cyan:          #00d4ff;
+      --cyan-dim:      rgba(0,212,255,0.18);
+      --cyan-glow:     rgba(0,212,255,0.35);
+      --gold:          #f0b429;
+      --gold-dim:      rgba(240,180,41,0.15);
+      --green:         #00e676;
+      --red:           #ff4757;
+      --text-primary:  #e8f4fd;
+      --text-muted:    rgba(232,244,253,0.5);
+      --text-dim:      rgba(232,244,253,0.28);
+      --border:        rgba(0,212,255,0.12);
+      --border-bright: rgba(0,212,255,0.35);
+      --font-head:     'Bricolage Grotesque', sans-serif;
+      --font-body:     'DM Sans', sans-serif;
+      --radius:        16px;
+      --radius-sm:     10px;
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+
+    /* ============================================================
+       PARTICLE CANVAS
+    ============================================================ */
+    #particleCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 3px; }
+
+    /* ============================================================
+       UTILITY CLASSES
+    ============================================================ */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 100px 0; position: relative; z-index: 1; }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.75;
+    }
+    .highlight { color: var(--cyan); }
+    .highlight-gold { color: var(--gold); }
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    }
+    .glass-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-bright);
+      transform: translateY(-4px);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: var(--cyan);
+      color: #050d1a;
+      box-shadow: 0 0 24px rgba(0,212,255,0.35);
+    }
+    .btn-primary:hover {
+      background: #33ddff;
+      box-shadow: 0 0 40px rgba(0,212,255,0.55);
+      transform: translateY(-2px);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--cyan);
+      border: 1.5px solid var(--border-bright);
+    }
+    .btn-outline:hover {
+      background: var(--cyan-dim);
+      transform: translateY(-2px);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-green { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+    .badge-red   { background: rgba(255,71,87,0.12);  color: var(--red);   border: 1px solid rgba(255,71,87,0.25); }
+    .badge-cyan  { background: var(--cyan-dim);        color: var(--cyan);  border: 1px solid rgba(0,212,255,0.3); }
+    .badge-gold  { background: var(--gold-dim);        color: var(--gold);  border: 1px solid rgba(240,180,41,0.3);}
+
+    /* dot pulse */
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 1.8s infinite;
+    }
+    .dot-green { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot-cyan  { background: var(--cyan);  box-shadow: 0 0 8px var(--cyan);  }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* fade-up on scroll */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 18px 0;
+      transition: background 0.4s, padding 0.4s, box-shadow 0.4s;
+    }
+    .navbar.scrolled {
+      background: rgba(5,13,26,0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      padding: 12px 0;
+      box-shadow: 0 1px 0 var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--cyan); text-shadow: 0 0 18px var(--cyan-glow); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: color 0.25s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-nav-login {
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--cyan);
+      border: 1.5px solid var(--border-bright);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-nav-login:hover { background: var(--cyan-dim); }
+    .btn-nav-register {
+      padding: 10px 22px;
+      border-radius: 50px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: var(--cyan);
+      color: #050d1a;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 18px rgba(0,212,255,0.3);
+    }
+    .btn-nav-register:hover {
+      background: #33ddff;
+      box-shadow: 0 0 32px rgba(0,212,255,0.5);
+    }
+    /* hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all 0.35s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    /* mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5,13,26,0.97);
+      backdrop-filter: blur(24px);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      transition: color 0.25s;
+    }
+    .mobile-menu a:hover { color: var(--cyan); }
+    .mobile-menu-actions { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+    .mobile-close {
+      position: absolute;
+      top: 22px; right: 24px;
+      font-size: 1.6rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+    }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 100px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 60px;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: var(--cyan-dim);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+    .hero-title {
+      font-family: var(--font-head);
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 22px;
+      letter-spacing: -1px;
+    }
+    .hero-title .line2 { color: var(--cyan); text-shadow: 0 0 40px rgba(0,212,255,0.4); }
+    .hero-desc {
+      font-size: 1.08rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 480px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
+    /* live ticker */
+    .live-ticker {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      backdrop-filter: blur(12px);
+    }
+    .ticker-coin {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+    .ticker-price {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      transition: color 0.3s;
+    }
+    .ticker-change {
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .ticker-change.up   { color: var(--green); }
+    .ticker-change.down { color: var(--red); }
+    /* hero visual */
+    .hero-visual { position: relative; }
+    .dashboard-mockup {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      animation: floatY 4s ease-in-out infinite;
+      box-shadow: 0 0 80px rgba(0,212,255,0.08), 0 40px 80px rgba(0,0,0,0.5);
+    }
+    @keyframes floatY {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-14px); }
+    }
+    .mock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .mock-title { font-family: var(--font-head); font-size: 0.85rem; font-weight: 700; color: var(--text-muted); }
+    .mock-chart {
+      width: 100%;
+      height: 110px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 18px;
+    }
+    .mock-chart svg { width: 100%; height: 100%; }
+    .mock-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .mock-stat {
+      background: rgba(0,212,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .mock-stat-val {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    .mock-stat-lbl { font-size: 0.68rem; color: var(--text-dim); margin-top: 2px; }
+    .mock-signal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(0,230,118,0.07);
+      border: 1px solid rgba(0,230,118,0.2);
+      border-radius: 10px;
+    }
+    .mock-signal-label { font-size: 0.78rem; color: var(--text-muted); }
+    .mock-signal-value { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; color: var(--green); }
+    /* floating badges */
+    .float-badge {
+      position: absolute;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      backdrop-filter: blur(12px);
+      border: 1px solid;
+      animation: floatY 3s ease-in-out infinite;
+    }
+    .float-badge-1 {
+      top: -20px; left: -24px;
+      background: rgba(0,230,118,0.12);
+      border-color: rgba(0,230,118,0.3);
+      color: var(--green);
+      animation-delay: 0.5s;
+    }
+    .float-badge-2 {
+      bottom: 10px; right: -28px;
+      background: rgba(240,180,41,0.12);
+      border-color: rgba(240,180,41,0.3);
+      color: var(--gold);
+      animation-delay: 1.2s;
+    }
+    /* glow orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 400px; height: 400px; background: rgba(0,212,255,0.07); top: -100px; right: -100px; }
+    .orb-2 { width: 300px; height: 300px; background: rgba(240,180,41,0.05); bottom: 0; left: -80px; }
+
+    /* ============================================================
+       TICKER MARQUEE
+    ============================================================ */
+    .marquee-wrap {
+      position: relative; z-index: 1;
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,212,255,0.03);
+      padding: 14px 0;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 48px;
+      animation: marqueeScroll 28s linear infinite;
+      width: max-content;
+    }
+    .marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .mq-coin { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; }
+    .mq-price { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; }
+    .mq-sep { color: var(--border-bright); }
+
+    /* ============================================================
+       STATS SECTION
+    ============================================================ */
+    .stats-section { padding: 80px 0; position: relative; z-index: 1; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .stat-card {
+      padding: 32px 28px;
+      text-align: center;
+    }
+    .stat-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+    .stat-number {
+      font-family: var(--font-head);
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--cyan);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+    /* ============================================================
+       FEATURES SECTION
+    ============================================================ */
+    .features-header { text-align: center; margin-bottom: 60px; }
+    .features-header .section-sub { margin: 0 auto; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature-card { padding: 36px 28px; }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: var(--cyan-dim);
+      border: 1px solid rgba(0,212,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 22px;
+    }
+    .feature-title {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .feature-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ============================================================
+       HOW IT WORKS
+    ============================================================ */
+    .how-header { text-align: center; margin-bottom: 70px; }
+    .how-header .section-sub { margin: 0 auto; }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 36px; left: calc(16.66% + 28px); right: calc(16.66% + 28px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+    .step-item { padding: 0 28px; text-align: center; }
+    .step-number {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--cyan);
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 24px var(--cyan-dim);
+    }
+    .step-title {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .step-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; }
+
+    /* ============================================================
+       PERFORMANCE
+    ============================================================ */
+    .perf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+    }
+    .perf-stats { display: flex; flex-direction: column; gap: 20px; }
+    .perf-stat-row {
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .perf-stat-name { font-size: 0.9rem; color: var(--text-muted); }
+    .perf-stat-val {
+      font-family: var(--font-head);
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+    .perf-chart-wrap { padding: 28px; }
+    .perf-chart-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+    canvas#perfChart { max-height: 220px; }
+    .demo-disclaimer {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    /* ============================================================
+       EXCHANGES
+    ============================================================ */
+    .exchanges-header { text-align: center; margin-bottom: 50px; }
+    .exchanges-grid {
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .exchange-card {
+      padding: 30px 40px;
+      text-align: center;
+      min-width: 180px;
+    }
+    .exchange-logo {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .exchange-status { font-size: 0.78rem; font-weight: 600; }
+
+    /* ============================================================
+       TESTIMONIALS (SWIPER)
+    ============================================================ */
+    .testimonials-header { text-align: center; margin-bottom: 60px; }
+    .testimonials-header .section-sub { margin: 0 auto; }
+    .swiper { overflow: hidden; padding-bottom: 50px !important; }
+    .swiper-slide { height: auto; }
+    .testi-card { padding: 32px; height: 100%; }
+    .testi-stars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 18px;
+    }
+    .star { color: var(--gold); font-size: 1rem; }
+    .testi-quote {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .testi-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #050d1a;
+      flex-shrink: 0;
+    }
+    .testi-name { font-weight: 700; font-size: 0.92rem; }
+    .testi-handle { font-size: 0.78rem; color: var(--text-dim); }
+    .testi-result {
+      margin-top: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .swiper-pagination-bullet {
+      background: var(--text-dim) !important;
+      opacity: 1 !important;
+      width: 6px !important;
+      height: 6px !important;
+    }
+    .swiper-pagination-bullet-active {
+      background: var(--cyan) !important;
+      width: 20px !important;
+      border-radius: 3px !important;
+    }
+
+    /* ============================================================
+       CTA BANNER
+    ============================================================ */
+    .cta-banner {
+      position: relative; z-index: 1;
+      padding: 80px 0;
+    }
+    .cta-inner {
+      text-align: center;
+      padding: 70px 40px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(240,180,41,0.05));
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.07), transparent 70%);
+    }
+    .cta-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cta-sub { font-size: 1rem; color: var(--text-muted); margin-bottom: 36px; position: relative; }
+    .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 60px 0 30px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+    .footer-brand .nav-logo { font-size: 1.4rem; margin-bottom: 14px; display: block; }
+    .footer-tagline { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; max-width: 260px; }
+    .social-links { display: flex; gap: 12px; }
+    .social-link {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+    .social-link:hover { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
+    .footer-col-title { font-family: var(--font-head); font-size: 0.9rem; font-weight: 700; margin-bottom: 18px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { font-size: 0.85rem; color: var(--text-muted); transition: color 0.25s; }
+    .footer-links a:hover { color: var(--cyan); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-copy { font-size: 0.8rem; color: var(--text-dim); }
+    .footer-disclaimer { font-size: 0.75rem; color: var(--text-dim); max-width: 500px; line-height: 1.5; }
+
+    /* ============================================================
+       MODAL SYSTEM
+    ============================================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,13,26,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: #0a1628;
+      border: 1px solid var(--border-bright);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 440px;
+      transform: scale(0.92) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .modal-title {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--text-primary); }
+    .modal-tabs {
+      display: flex;
+      gap: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+    .modal-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.25s;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+    }
+    .modal-tab.active {
+      background: var(--cyan);
+      color: #050d1a;
+    }
+    .modal-pane { display: none; }
+    .modal-pane.active { display: block; }
+    .form-group { margin-bottom: 18px; }
+    .form-label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 7px; display: block; }
+    .form-input {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.12);
+    }
+    .form-input::placeholder { color: var(--text-dim); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .form-check input { accent-color: var(--cyan); }
+    .form-link { font-size: 0.82rem; color: var(--cyan); cursor: pointer; }
+    .form-link:hover { text-decoration: underline; }
+    .btn-form {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      background: var(--cyan);
+      color: #050d1a;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(0,212,255,0.3);
+      margin-bottom: 16px;
+    }
+    .btn-form:hover {
+      background: #33ddff;
+      box-shadow: 0 0 36px rgba(0,212,255,0.5);
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 0.78rem; color: var(--text-dim); }
+    .btn-google {
+      width: 100%;
+      padding: 13px;
+      border-radius: 10px;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+    .btn-google:hover { border-color: var(--border-bright); background: var(--bg-card); }
+    .strength-bar {
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+    }
+    .terms-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .terms-check input { margin-top: 2px; accent-color: var(--cyan); }
+    .terms-check a { color: var(--cyan); }
+
+    /* ============================================================
+       TOAST NOTIFICATIONS
+    ============================================================ */
+    .toast-container {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: 1px solid;
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.88rem;
+      min-width: 260px;
+      max-width: 340px;
+      animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(40px) scale(0.9); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .toast.fade-out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateX(40px) scale(0.9); }
+    }
+    .toast-success { background: rgba(0,230,118,0.1);  border-color: rgba(0,230,118,0.25); color: var(--green); }
+    .toast-error   { background: rgba(255,71,87,0.1);  border-color: rgba(255,71,87,0.25);  color: var(--red); }
+    .toast-info    { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2);   color: var(--cyan); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .section { padding: 70px 0; }
+      .nav-links, .nav-actions { display: none; }
+      .hamburger { display: flex; }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+      .hero-desc { margin: 0 auto 36px; }
+      .hero-actions { justify-content: center; }
+      .live-ticker { justify-content: center; }
+      .hero-visual { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+      .how-header, .features-header, .testimonials-header, .exchanges-header { text-align: center; }
+      .steps-grid { grid-template-columns: 1fr; gap: 40px; }
+      .steps-grid::before { display: none; }
+      .perf-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 2rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+      .stat-number { font-size: 1.8rem; }
+      .cta-inner { padding: 50px 24px; }
+      .modal-box { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================
+     PARTICLE CANVAS
+============================= -->
+<canvas id="particleCanvas"></canvas>
+
+<!-- ============================
+     NAVBAR
+============================= -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a class="nav-logo" href="#"><span>Quant</span>Edge</a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#performance">Performance</a></li>
+        <li><a href="#testimonials">Reviews</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-nav-login" onclick="openModal('login')">Login</button>
+        <button class="btn-nav-register" onclick="openModal('register')">Get Started</button>
+      </div>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="closeMobileMenu()">✕</button>
+  <a href="#features"      onclick="closeMobileMenu()">Features</a>
+  <a href="#how-it-works"  onclick="closeMobileMenu()">How It Works</a>
+  <a href="#performance"   onclick="closeMobileMenu()">Performance</a>
+  <a href="#testimonials"  onclick="closeMobileMenu()">Reviews</a>
+  <div class="mobile-menu-actions">
+    <button class="btn-nav-login"    onclick="closeMobileMenu();openModal('login')">Login</button>
+    <button class="btn-nav-register" onclick="closeMobileMenu();openModal('register')">Get Started Free</button>
+  </div>
+</div>
+
+<!-- ============================
+     HERO
+============================= -->
+<section class="hero">
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <!-- left -->
+      <div class="hero-content fade-up">
+        <div class="hero-eyebrow">
+          <span class="dot dot-green"></span>
+          Live Signal Engine Active
+        </div>
+        <h1 class="hero-title">
+          Trade Crypto<br>
+          <span class="line2">Smarter &amp; Faster</span><br>
+          With AI Signals
+        </h1>
+        <p class="hero-desc">
+          QuantEdge is an AI-powered crypto trading engine that analyzes
+          BTC, ETH &amp; SOL in real-time, generating BUY/SELL/HOLD signals
+          so you never miss a move.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="openModal('register')">
+            🚀 Start Trading Free
+          </button>
+          <button class="btn btn-outline" onclick="openModal('login')">
+            Login to Dashboard
+          </button>
+        </div>
+        <!-- live ticker -->
+        <div class="live-ticker" id="liveTicker">
+          <div class="ticker-item">
+            <span class="ticker-coin">BTC</span>
+            <span class="ticker-price" id="btc-price">$—</span>
+            <span class="ticker-change" id="btc-change">—</span>
+          </div>
+          <div class="ticker-item">
+            <span class="ticker-coin">ETH</span>
+            <span class="ticker-price" id="eth-price">$—</span>
+            <span class="ticker-change" id="eth-change">—</span>
+          </div>
+          <div class="ticker-item">
+            <span class="ticker-coin">SOL</span>
+            <span class="ticker-price" id="sol-price">$—</span>
+            <span class="ticker-change" id="sol-change">—</span>
+          </div>
+        </div>
+      </div>
+      <!-- right visual -->
+      <div class="hero-visual fade-up" style="transition-delay:0.2s">
+        <div class="dashboard-mockup">
+          <div class="mock-header">
+            <span class="mock-title">BTCUSDT — Live Chart</span>
+            <span class="badge badge-green"><span class="dot dot-green"></span> LIVE</span>
+          </div>
+          <div class="mock-chart">
+            <svg viewBox="0 0 300 110" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,80 L20,72 L40,68 L60,74 L80,60 L100,52 L120,58 L140,44 L160,38 L180,46 L200,32 L220,28 L240,35 L260,22 L280,18 L300,24"
+                    fill="none" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M0,80 L20,72 L40,68 L60,74 L80,60 L100,52 L120,58 L140,44 L160,38 L180,46 L200,32 L220,28 L240,35 L260,22 L280,18 L300,24 L300,110 L0,110 Z"
+                    fill="url(#chartGrad)"/>
+            </svg>
+          </div>
+          <div class="mock-stats">
+            <div class="mock-stat">
+              <div class="mock-stat-val" id="mock-btc">$104.2K</div>
+              <div class="mock-stat-lbl">BTC Price</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-val" style="color:var(--green)">+73.4%</div>
+              <div class="mock-stat-lbl">Win Rate</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-val" style="color:var(--gold)">$2.4K</div>
+              <div class="mock-stat-lbl">Demo P&amp;L</div>
+            </div>
+          </div>
+          <div class="mock-signal">
+            <div>
+              <div class="mock-signal-label">Latest Signal</div>
+              <div class="mock-signal-value" id="mockSignal">▲ BUY — BTCUSDT</div>
+            </div>
+            <span class="badge badge-cyan">EMA Cross</span>
+          </div>
+        </div>
+        <div class="float-badge float-badge-1">✅ +4.2% ROI in 2h</div>
+        <div class="float-badge float-badge-2">🎯 Signal Accuracy 73%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     MARQUEE TICKER
+============================= -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- ============================
+     STATS
+============================= -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="glass-card stat-card fade-up">
+        <div class="stat-icon">📡</div>
+        <div class="stat-number" data-target="12847" data-suffix="+">0</div>
+        <div class="stat-label">Signals Generated</div>
+      </div>
+      <div class="glass-card stat-card fade-up" style="transition-delay:0.1s">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-number" data-target="73" data-suffix=".4%">0</div>
+        <div class="stat-label">Signal Win Rate</div>
+      </div>
+      <div class="glass-card stat-card fade-up" style="transition-delay:0.2s">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-number" data-target="3" data-suffix=" Pairs">0</div>
+        <div class="stat-label">Assets Tracked Live</div>
+      </div>
+      <div class="glass-card stat-card fade-up" style="transition-delay:0.3s">
+        <div class="stat-icon">🔐</div>
+        <div class="stat-number" data-target="99" data-suffix=".9%">0</div>
+        <div class="stat-label">System Uptime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     FEATURES
+============================= -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="features-header fade-up">
+      <div class="section-label">Core Features</div>
+      <h2 class="section-title">Everything You Need to Trade <span class="highlight">Smarter</span></h2>
+      <p class="section-sub">A complete AI trading toolkit — from live data feeds to automated signal execution and risk management.</p>
+    </div>
+    <div class="features-grid">
+      <div class="glass-card feature-card fade-up">
+        <div class="feature-icon">📡</div>
+        <div class="feature-title">Real-Time Signal Engine</div>
+        <p class="feature-desc">EMA crossovers, RSI analysis, and volume spikes combine into a weighted scoring system to generate high-confidence BUY/SELL/HOLD signals.</p>
+      </div>
+      <div class="glass-card feature-card fade-up" style="transition-delay:0.08s">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Live WebSocket Feed</div>
+        <p class="feature-desc">Connected to Bybit's WebSocket API for millisecond-accurate price data on BTC, ETH, and SOL with automatic reconnection.</p>
+      </div>
+      <div class="glass-card feature-card fade-up" style="transition-delay:0.16s">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-title">Demo &amp; Real Trading</div>
+        <p class="feature-desc">Practice on $10,000 simulated USDT in demo mode. Switch to real Bybit trading with one toggle when you're confident.</p>
+      </div>
+      <div class="glass-card feature-card fade-up" style="transition-delay:0.24s">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Risk Management</div>
+        <p class="feature-desc">Set stop-loss %, take-profit targets, max trade size, daily loss limits, and cooldown timers — all configurable per user.</p>
+      </div>
+      <div class="glass-card feature-card fade-up" style="transition-delay:0.32s">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Performance Tracker</div>
+        <p class="feature-desc">Live equity curve, win rate breakdown by asset, total P&amp;L, and full trade history with every signal that triggered each trade.</p>
+      </div>
+      <div class="glass-card feature-card fade-up" style="transition-delay:0.40s">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Bot Control Panel</div>
+        <p class="feature-desc">Start, pause, or stop the bot with one click. Paused mode still generates signals without executing trades — perfect for review.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     HOW IT WORKS
+============================= -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="how-header fade-up">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">Three Steps to <span class="highlight">Automated</span> Trading</h2>
+      <p class="section-sub">Set up your trading engine in minutes. No coding required. No manual chart-watching needed.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-item fade-up">
+        <div class="step-number">01</div>
+        <div class="step-title">Connect Your Exchange</div>
+        <p class="step-desc">Create your API key on Bybit (read + trade permissions, no withdrawal), paste it into your QuantEdge settings, and you're linked securely.</p>
+      </div>
+      <div class="step-item fade-up" style="transition-delay:0.15s">
+        <div class="step-number">02</div>
+        <div class="step-title">Configure Risk Settings</div>
+        <p class="step-desc">Set your stop-loss, take-profit, max trade size, and daily loss cap. The bot will never exceed your defined limits — ever.</p>
+      </div>
+      <div class="step-item fade-up" style="transition-delay:0.3s">
+        <div class="step-number">03</div>
+        <div class="step-title">Let the Bot Trade</div>
+        <p class="step-desc">Hit Start. QuantEdge watches the markets 24/7, generates signals, executes trades, and logs every result to your dashboard in real-time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     PERFORMANCE
+============================= -->
+<section class="section" id="performance">
+  <div class="container">
+    <div class="perf-grid">
+      <div class="fade-up">
+        <div class="section-label">Performance Preview</div>
+        <h2 class="section-title">See What the <span class="highlight">Engine</span> Delivers</h2>
+        <p class="section-sub" style="margin-bottom:36px">These figures are from demo mode simulations. Your results will vary based on market conditions and risk settings.</p>
+        <div class="perf-stats">
+          <div class="glass-card perf-stat-row">
+            <span class="perf-stat-name">Total Return (30 days)</span>
+            <span class="perf-stat-val" style="color:var(--green)">+38.7%</span>
+          </div>
+          <div class="glass-card perf-stat-row">
+            <span class="perf-stat-name">Signal Win Rate</span>
+            <span class="perf-stat-val" style="color:var(--cyan)">73.4%</span>
+          </div>
+          <div class="glass-card perf-stat-row">
+            <span class="perf-stat-name">Max Drawdown</span>
+            <span class="perf-stat-val" style="color:var(--red)">−6.2%</span>
+          </div>
+          <div class="glass-card perf-stat-row">
+            <span class="perf-stat-name">Total Trades Executed</span>
+            <span class="perf-stat-val" style="color:var(--gold)">248</span>
+          </div>
+        </div>
+      </div>
+      <div class="fade-up" style="transition-delay:0.2s">
+        <div class="glass-card perf-chart-wrap">
+          <div class="perf-chart-title">EQUITY CURVE — DEMO MODE (30 DAYS)</div>
+          <canvas id="perfChart"></canvas>
+          <p class="demo-disclaimer">⚠️ Simulated demo performance. Not financial advice.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     EXCHANGES
+============================= -->
+<section class="section">
+  <div class="container">
+    <div class="exchanges-header fade-up">
+      <div class="section-label">Supported Exchanges</div>
+      <h2 class="section-title">Connect Your <span class="highlight">Exchange</span></h2>
+      <p class="section-sub" style="margin:0 auto">Start with Bybit. More exchanges coming as we expand.</p>
+    </div>
+    <div class="exchanges-grid" style="margin-top:50px">
+      <div class="glass-card exchange-card fade-up">
+        <div class="exchange-logo" style="color:var(--gold)">⬡ Bybit</div>
+        <div class="exchange-status"><span class="badge badge-green">✅ Supported</span></div>
+      </div>
+      <div class="glass-card exchange-card fade-up" style="transition-delay:0.1s">
+        <div class="exchange-logo" style="color:#f3ba2f">◈ Binance</div>
+        <div class="exchange-status"><span class="badge badge-cyan">🔜 Coming Soon</span></div>
+      </div>
+      <div class="glass-card exchange-card fade-up" style="transition-delay:0.2s">
+        <div class="exchange-logo" style="color:#00b8d9">⬡ Bitget</div>
+        <div class="exchange-status"><span class="badge badge-cyan">🔜 Coming Soon</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     TESTIMONIALS
+============================= -->
+<section class="section" id="testimonials">
+  <div class="container">
+    <div class="testimonials-header fade-up">
+      <div class="section-label">Trader Reviews</div>
+      <h2 class="section-title">What Our <span class="highlight">Traders</span> Say</h2>
+      <p class="section-sub">Real feedback from demo traders who tested QuantEdge over 30 days.</p>
+    </div>
+    <div class="swiper mySwiper fade-up" style="transition-delay:0.1s">
+      <div class="swiper-wrapper">
+
+        <div class="swiper-slide">
+          <div class="glass-card testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"The signal engine caught a BTC breakout before any of the major influencers were even talking about it. +6.4% in under 3 hours in demo mode. I'm switching to real trading next week."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:var(--cyan)">AO</div>
+              <div>
+                <div class="testi-name">Adewale Okonkwo</div>
+                <div class="testi-handle">@adewale_trades · Lagos</div>
+                <div class="testi-result" style="color:var(--green)">+$640 demo gain</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="glass-card testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"Finally a bot that respects my risk settings. I set 2% stop-loss and it never once let a trade go beyond that. The demo P&amp;L after 30 days was incredible honestly."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:var(--gold)">FK</div>
+              <div>
+                <div class="testi-name">Fatima Kabir</div>
+                <div class="testi-handle">@fatimakabir · Abuja</div>
+                <div class="testi-result" style="color:var(--green)">+$1,220 demo gain</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="glass-card testi-card">
+            <div class="testi-stars">★★★★☆</div>
+            <p class="testi-quote">"The EMA crossover signals on ETH are surprisingly accurate. I ran 30 days of demo and ended at 71% win rate. The dashboard UI is also just very clean and professional."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:var(--green)">CM</div>
+              <div>
+                <div class="testi-name">Chukwuemeka Madu</div>
+                <div class="testi-handle">@emeka_fx · Port Harcourt</div>
+                <div class="testi-result" style="color:var(--green)">+$870 demo gain</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="glass-card testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"I've tried 4 trading bots before QuantEdge. This is the only one that was transparent about its signals — you can see exactly why every trade was placed. That trust is everything."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:#a78bfa)">YB</div>
+              <div>
+                <div class="testi-name">Yusuf Bello</div>
+                <div class="testi-handle">@yusuftrader · Kano</div>
+                <div class="testi-result" style="color:var(--green)">+$430 demo gain</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="glass-card testi-card">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">"The pause feature is genius. When news dropped I paused the bot instantly, waited for the dump to settle, then restarted and caught the recovery. Full control at all times."</p>
+            <div class="testi-author">
+              <div class="testi-avatar" style="background:var(--red)">NA</div>
+              <div>
+                <div class="testi-name">Ngozi Anioke</div>
+                <div class="testi-handle">@ngozicrypto · Enugu</div>
+                <div class="testi-result" style="color:var(--green)">+$980 demo gain</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     CTA BANNER
+============================= -->
+<section class="cta-banner">
+  <div class="container">
+    <div class="cta-inner fade-up">
+      <div class="section-label" style="color:var(--gold)">Start Today</div>
+      <h2 class="cta-title">Ready to Trade <span class="highlight">Smarter?</span></h2>
+      <p class="cta-sub">Join QuantEdge and let AI handle the signals while you focus on strategy. Start with demo mode — no risk, no obligation.</p>
+      <div class="cta-actions">
+        <button class="btn btn-primary" onclick="openModal('register')">🚀 Create Free Account</button>
+        <button class="btn btn-outline" onclick="openModal('login')">Login to Dashboard</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================
+     FOOTER
+============================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="nav-logo"><span>Quant</span>Edge</span>
+        <p class="footer-tagline">An AI-powered crypto trading signal engine for BTC, ETH &amp; SOL. Built for serious traders who want an edge.</p>
+        <div class="social-links">
+          <a class="social-link" href="#" title="Twitter/X">𝕏</a>
+          <a class="social-link" href="#" title="Telegram">✈</a>
+          <a class="social-link" href="#" title="Discord">◈</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <ul class="footer-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#performance">Performance</a></li>
+          <li><a href="#" onclick="openModal('register')">Get Started</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <ul class="footer-links">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQs</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Risk Disclosure</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 QuantEdge. All rights reserved.</div>
+      <div class="footer-disclaimer">⚠️ QuantEdge is not a financial advisor. Crypto trading involves significant risk. Past performance does not guarantee future results. Trade responsibly.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================
+     AUTH MODAL
+============================= -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"><span style="color:var(--cyan)">Quant</span>Edge</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" id="tab-login"    onclick="switchTab('login')">Login</button>
+      <button class="modal-tab"        id="tab-register" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- LOGIN PANE -->
+    <div class="modal-pane active" id="pane-login">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" placeholder="you@example.com" id="login-email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="Enter your password" id="login-password" />
+      </div>
+      <div class="form-footer">
+        <label class="form-check"><input type="checkbox"> Remember me</label>
+        <span class="form-link" onclick="switchTab('forgot')">Forgot password?</span>
+      </div>
+      <button class="btn-form" onclick="handleLogin()">Login to Dashboard</button>
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">or continue with</span>
+        <div class="divider-line"></div>
+      </div>
+      <button class="btn-google" onclick="handleGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <!-- REGISTER PANE -->
+    <div class="modal-pane" id="pane-register">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" type="text" placeholder="John" id="reg-fname" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" placeholder="Doe" id="reg-lname" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" placeholder="you@example.com" id="reg-email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" placeholder="Min 8 characters" id="reg-password" oninput="checkStrength(this.value)" />
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input class="form-input" type="password" placeholder="Repeat password" id="reg-confirm" />
+      </div>
+      <div class="terms-check">
+        <input type="checkbox" id="termsCheck" />
+        <label for="termsCheck">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I understand crypto trading carries significant risk.</label>
+      </div>
+      <button class="btn-form" onclick="handleRegister()">Create Free Account</button>
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">or</span>
+        <div class="divider-line"></div>
+      </div>
+      <button class="btn-google" onclick="handleGoogleAuth()">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Sign up with Google
+      </button>
+    </div>
+
+    <!-- FORGOT PANE -->
+    <div class="modal-pane" id="pane-forgot">
+      <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:22px;line-height:1.6">Enter your email and we'll send you a secure link to reset your password.</p>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" placeholder="you@example.com" id="forgot-email" />
+      </div>
+      <button class="btn-form" onclick="handleForgot()">Send Reset Link</button>
+      <div style="text-align:center;margin-top:12px">
+        <span class="form-link" onclick="switchTab('login')">← Back to Login</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================
+     TOAST CONTAINER
+============================= -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================
+     SCRIPTS
+============================= -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* ============================================================
+   PARTICLE CANVAS
+============================================================ */
+(function(){
+  const canvas = document.getElementById('particleCanvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const PARTICLE_COUNT = window.innerWidth < 768 ? 55 : 100;
+  const MAX_DIST = 130;
+
+  function rand(min, max){ return Math.random() * (max - min) + min; }
+
+  function createParticle(){
+    return {
+      x: rand(0, W), y: rand(0, H),
+      vx: rand(-0.35, 0.35), vy: rand(-0.55, -0.1),
+      r: rand(1.2, 2.8),
+      alpha: rand(0.3, 0.8),
+      color: Math.random() > 0.7 ? '#f0b429' : '#00d4ff'
+    };
+  }
+
+  for(let i = 0; i < PARTICLE_COUNT; i++) particles.push(createParticle());
+
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    // connect lines
+    for(let i = 0; i < particles.length; i++){
+      for(let j = i+1; j < particles.length; j++){
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < MAX_DIST){
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(0,212,255,${0.12 * (1 - dist/MAX_DIST)})`;
+          ctx.lineWidth = 0.7;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // draw particles
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color.replace(')', `,${p.alpha})`).replace('rgb','rgba').replace('#','rgba(').replace('00d4ff','0,212,255').replace('f0b429','240,180,41');
+      // simplified alpha fill
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // move
+      p.x += p.vx; p.y += p.vy;
+      // wrap
+      if(p.y < -10) { p.y = H + 10; p.x = rand(0, W); }
+      if(p.x < -10) p.x = W + 10;
+      if(p.x > W+10) p.x = -10;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ============================================================
+   NAVBAR SCROLL
+============================================================ */
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 30);
+});
+
+/* ============================================================
+   HAMBURGER
+============================================================ */
+function closeMobileMenu(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('hamburger').addEventListener('click', function(){
+  this.classList.toggle('open');
+  const menu = document.getElementById('mobileMenu');
+  menu.classList.toggle('open');
+  document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+});
+
+/* ============================================================
+   SCROLL FADE-UP
+============================================================ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+/* ============================================================
+   COUNTER ANIMATION
+============================================================ */
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(!e.isIntersecting) return;
+    const el     = e.target;
+    const target = +el.dataset.target;
+    const suffix = el.dataset.suffix || '';
+    let current  = 0;
+    const step   = target / 60;
+    const timer  = setInterval(() => {
+      current += step;
+      if(current >= target){
+        current = target;
+        clearInterval(timer);
+      }
+      el.textContent = Math.floor(current).toLocaleString() + suffix;
+    }, 24);
+    counterObs.unobserve(el);
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('[data-target]').forEach(el => counterObs.observe(el));
+
+/* ============================================================
+   SWIPER
+============================================================ */
+new Swiper('.mySwiper', {
+  slidesPerView: 1,
+  spaceBetween: 24,
+  loop: true,
+  autoplay: { delay: 4500, disableOnInteraction: false },
+  pagination: { el: '.swiper-pagination', clickable: true },
+  breakpoints: {
+    640:  { slidesPerView: 2 },
+    1024: { slidesPerView: 3 }
+  }
+});
+
+/* ============================================================
+   LIVE PRICE TICKER (Binance public REST)
+============================================================ */
+const PAIRS = ['BTCUSDT','ETHUSDT','SOLUSDT'];
+const LABELS = { BTCUSDT:'BTC', ETHUSDT:'ETH', SOLUSDT:'SOL' };
+
+async function fetchPrices(){
+  try {
+    const symbolsParam = JSON.stringify(PAIRS.map(s => `"${s}"`).join(','));
+    const res  = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbols=${encodeURIComponent('["BTCUSDT","ETHUSDT","SOLUSDT"]')}`);
+    if(!res.ok) throw new Error('Binance API error');
+    const data = await res.json();
+    data.forEach(item => {
+      const sym    = item.symbol;
+      const price  = parseFloat(item.lastPrice);
+      const change = parseFloat(item.priceChangePercent);
+      const label  = LABELS[sym];
+      const up     = change >= 0;
+
+      // hero ticker
+      const idMap = { BTCUSDT:'btc', ETHUSDT:'eth', SOLUSDT:'sol' };
+      const id    = idMap[sym];
+      const pEl   = document.getElementById(`${id}-price`);
+      const cEl   = document.getElementById(`${id}-change`);
+      if(pEl) pEl.textContent = '$' + price.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+      if(cEl){
+        cEl.textContent = (up ? '+' : '') + change.toFixed(2) + '%';
+        cEl.className   = 'ticker-change ' + (up ? 'up' : 'down');
+      }
+
+      // update mock card
+      if(sym === 'BTCUSDT'){
+        const mk = document.getElementById('mock-btc');
+        if(mk) mk.textContent = '$' + (price/1000).toFixed(1) + 'K';
+      }
+    });
+    updateMarquee(data);
+  } catch(err){
+    console.warn('Price fetch failed:', err.message);
+    // fallback static prices
+    setStaticPrices();
+  }
+}
+
+function setStaticPrices(){
+  const fallback = [
+    { id:'btc', price:'104,280.00', change:'+2.34', up:true },
+    { id:'eth', price:'3,812.50',   change:'+1.87', up:true },
+    { id:'sol', price:'168.40',     change:'-0.92', up:false }
+  ];
+  fallback.forEach(f => {
+    const pEl = document.getElementById(`${f.id}-price`);
+    const cEl = document.getElementById(`${f.id}-change`);
+    if(pEl) pEl.textContent = '$' + f.price;
+    if(cEl){ cEl.textContent = f.change + '%'; cEl.className = 'ticker-change ' + (f.up?'up':'down'); }
+  });
+}
+
+function updateMarquee(data){
+  const track = document.getElementById('marqueeTrack');
+  if(!track) return;
+  const items = [...data, ...data]; // duplicate for seamless loop
+  track.innerHTML = items.map(item => {
+    const price  = parseFloat(item.lastPrice);
+    const change = parseFloat(item.priceChangePercent);
+    const color  = change >= 0 ? 'var(--green)' : 'var(--red)';
+    const arrow  = change >= 0 ? '▲' : '▼';
+    return `<div class="marquee-item">
+      <span class="mq-coin">${LABELS[item.symbol] || item.symbol}</span>
+      <span class="mq-price" style="color:${color}">$${price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+      <span class="mq-price" style="color:${color};font-size:0.8rem">${arrow} ${Math.abs(change).toFixed(2)}%</span>
+      <span class="mq-sep">|</span>
+    </div>`;
+  }).join('');
+}
+
+// rotating mock signals
+const signals = ['▲ BUY — BTCUSDT','▼ SELL — ETHUSDT','◆ HOLD — SOLUSDT','▲ BUY — SOLUSDT','▼ SELL — BTCUSDT'];
+let sigIdx = 0;
+setInterval(()=>{
+  sigIdx = (sigIdx+1) % signals.length;
+  const el = document.getElementById('mockSignal');
+  if(el){ el.style.opacity = '0'; setTimeout(()=>{ el.textContent = signals[sigIdx]; el.style.opacity='1'; }, 300); }
+}, 3000);
+document.getElementById('mockSignal').style.transition = 'opacity 0.3s';
+
+fetchPrices();
+setInterval(fetchPrices, 15000);
+
+/* ============================================================
+   PERFORMANCE CHART (Chart.js)
+============================================================ */
+(function(){
+  const labels = [];
+  const today  = new Date();
+  for(let i = 29; i >= 0; i--){
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+  }
+  // simulated equity curve
+  const data = [10000];
+  for(let i = 1; i < 30; i++){
+    const prev = data[i-1];
+    const change = (Math.random() - 0.35) * 220;
+    data.push(Math.max(9200, prev + change));
+  }
+  data[data.length-1] = 13870; // end value
+
+  const ctx2 = document.getElementById('perfChart').getContext('2d');
+  const gradient = ctx2.createLinearGradient(0,0,0,220);
+  gradient.addColorStop(0,  'rgba(0,212,255,0.22)');
+  gradient.addColorStop(1,  'rgba(0,212,255,0)');
+
+  new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Demo Balance ($)',
+        data,
+        borderColor: '#00d4ff',
+        borderWidth: 2.5,
+        fill: true,
+        backgroundColor: gradient,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#00d4ff'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0a1628',
+          borderColor: 'rgba(0,212,255,0.3)',
+          borderWidth: 1,
+          titleColor: '#e8f4fd',
+          bodyColor: '#00d4ff',
+          callbacks: {
+            label: ctx => ' $' + Math.round(ctx.parsed.y).toLocaleString()
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+          ticks: { color: 'rgba(232,244,253,0.35)', maxTicksLimit: 6, font:{ size:10 } }
+        },
+        y: {
+          grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+          ticks: {
+            color: 'rgba(232,244,253,0.35)',
+            font: { size: 10 },
+            callback: v => '$' + (v/1000).toFixed(1) + 'K'
+          }
+        }
+      }
+    }
+  });
+})();
+
+/* ============================================================
+   MODAL SYSTEM
+============================================================ */
+function openModal(tab){
+  document.getElementById('authModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  switchTab(tab || 'login');
+}
+function closeModal(){
+  document.getElementById('authModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('authModal').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+function switchTab(tab){
+  ['login','register','forgot'].forEach(t => {
+    document.getElementById(`pane-${t}`).classList.toggle('active', t === tab);
+    const tabEl = document.getElementById(`tab-${t}`);
+    if(tabEl) tabEl.classList.toggle('active', t === tab);
+  });
+}
+
+/* ============================================================
+   PASSWORD STRENGTH
+============================================================ */
+function checkStrength(val){
+  const fill = document.getElementById('strengthFill');
+  if(!fill) return;
+  let score = 0;
+  if(val.length >= 8) score++;
+  if(/[A-Z]/.test(val)) score++;
+  if(/[0-9]/.test(val)) score++;
+  if(/[^A-Za-z0-9]/.test(val)) score++;
+  const pct    = (score / 4) * 100;
+  const colors = ['','#ff4757','#f0b429','#00e676','#00d4ff'];
+  fill.style.width      = pct + '%';
+  fill.style.background = colors[score] || '#ff4757';
+}
+
+/* ============================================================
+   TOAST NOTIFICATION SYSTEM
+============================================================ */
+function showToast(type, message, duration = 4500){
+  const container = document.getElementById('toastContainer');
+  const toast     = document.createElement('div');
+  const icons     = { success:'✅', error:'❌', info:'ℹ️' };
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span>${icons[type] || '🔔'}</span><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    toast.addEventListener('animationend', () => toast.remove());
+  }, duration);
+}
+
+/* ============================================================
+   AUTH HANDLERS (stubs — connect Firebase later)
+============================================================ */
+function handleLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  if(!email || !pass){
+    showToast('error', 'Please fill in all fields.');
+    return;
+  }
+  if(!email.includes('@')){
+    showToast('error', 'Enter a valid email address.');
+    return;
+  }
+  // Firebase auth goes here (Phase 1 Step 6)
+  showToast('info', 'Connecting to Firebase… (auth coming in Step 6)');
+}
+
+function handleRegister(){
+  const fname   = document.getElementById('reg-fname').value.trim();
+  const lname   = document.getElementById('reg-lname').value.trim();
+  const email   = document.getElementById('reg-email').value.trim();
+  const pass    = document.getElementById('reg-password').value;
+  const confirm = document.getElementById('reg-confirm').value;
+  const terms   = document.getElementById('termsCheck').checked;
+
+  if(!fname || !lname || !email || !pass || !confirm){
+    showToast('error', 'Please fill in all fields.');
+    return;
+  }
+  if(pass !== confirm){
+    showToast('error', 'Passwords do not match.');
+    return;
+  }
+  if(pass.length < 8){
+    showToast('error', 'Password must be at least 8 characters.');
+    return;
+  }
+  if(!terms){
+    showToast('error', 'Please accept the Terms of Service.');
+    return;
+  }
+  // Firebase createUser goes here (Phase 1 Step 6)
+  showToast('info', 'Firebase registration coming in Step 6.');
+}
+
+function handleForgot(){
+  const email = document.getElementById('forgot-email').value.trim();
+  if(!email || !email.includes('@')){
+    showToast('error', 'Enter a valid email address.');
+    return;
+  }
+  // Firebase sendPasswordResetEmail goes here
+  showToast('success', 'Reset link sent! Check your inbox.');
+  setTimeout(() => switchTab('login'), 2000);
+}
+
+function handleGoogleAuth(){
+  // Firebase Google Sign-In goes here (Phase 1 Step 6)
+  showToast('info', 'Google Sign-In will be wired in Step 6.');
+}
+</script>
+</body>
+</html>
