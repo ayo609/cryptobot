@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuantEdge — Create Account / Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --bg:            #050d1a;
+      --bg-card:       rgba(255,255,255,0.035);
+      --bg-input:      rgba(255,255,255,0.05);
+      --bg-input-focus:rgba(0,212,255,0.07);
+      --cyan:          #00d4ff;
+      --cyan-dim:      rgba(0,212,255,0.15);
+      --cyan-glow:     rgba(0,212,255,0.3);
+      --gold:          #f0b429;
+      --green:         #00e676;
+      --red:           #ff4757;
+      --text:          #e8f4fd;
+      --text-muted:    rgba(232,244,253,0.55);
+      --text-dim:      rgba(232,244,253,0.28);
+      --border:        rgba(0,212,255,0.12);
+      --border-mid:    rgba(0,212,255,0.22);
+      --border-bright: rgba(0,212,255,0.4);
+      --font-head:     'Bricolage Grotesque', sans-serif;
+      --font-body:     'DM Sans', sans-serif;
+      --radius:        18px;
+      --radius-sm:     11px;
+      --radius-xs:     8px;
+    }
+
+    /* ============================================================
+       RESET
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* ============================================================
+       PARTICLE CANVAS
+    ============================================================ */
+    #canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--cyan-dim); border-radius: 2px; }
+
+    /* ============================================================
+       BACKGROUND ORBS
+    ============================================================ */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(0,212,255,0.055); top: -120px; right: -100px; }
+    .orb-2 { width: 380px; height: 380px; background: rgba(240,180,41,0.04); bottom: -80px; left: -80px; }
+    .orb-3 { width: 250px; height: 250px; background: rgba(0,230,118,0.03); top: 40%; left: 20%; }
+
+    /* ============================================================
+       PAGE LAYOUT — split left panel + right card
+    ============================================================ */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 56px;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 56px;
+    }
+    .brand-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: #050d1a;
+      font-family: var(--font-head);
+      box-shadow: 0 0 20px var(--cyan-glow);
+    }
+    .brand-name {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+    .brand-name span { color: var(--cyan); text-shadow: 0 0 16px var(--cyan-glow); }
+    .left-headline {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 3.2vw, 2.9rem);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.8px;
+      margin-bottom: 20px;
+    }
+    .left-headline .accent { color: var(--cyan); }
+    .left-sub {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 48px;
+      max-width: 380px;
+    }
+    /* feature list */
+    .feature-list { display: flex; flex-direction: column; gap: 18px; margin-bottom: 52px; }
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .feature-dot {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: var(--cyan-dim);
+      border: 1px solid rgba(0,212,255,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .feature-text-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 2px; }
+    .feature-text-desc  { font-size: 0.82rem; color: var(--text-muted); line-height: 1.5; }
+    /* live mini ticker */
+    .mini-ticker {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .mini-tick {
+      padding: 9px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+    }
+    .mt-coin { font-weight: 700; color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px; }
+    .mt-price { font-family: var(--font-head); font-weight: 700; font-size: 0.88rem; }
+    .mt-chg { font-size: 0.72rem; font-weight: 600; }
+    .up   { color: var(--green); }
+    .down { color: var(--red); }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 56px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    /* ============================================================
+       AUTH CARD
+    ============================================================ */
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    .auth-top {
+      margin-bottom: 30px;
+    }
+    .auth-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px;
+      background: var(--cyan-dim);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      letter-spacing: 0.4px;
+    }
+    .dot-pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: dp 1.6s infinite;
+      box-shadow: 0 0 6px var(--cyan);
+    }
+    @keyframes dp { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.6)} }
+    .auth-title {
+      font-family: var(--font-head);
+      font-size: 1.85rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .auth-sub { font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* TAB SWITCHER */
+    .tab-bar {
+      display: flex;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 28px;
+      gap: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 11px 8px;
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.25s;
+    }
+    .tab-btn.active {
+      background: var(--cyan);
+      color: #050d1a;
+      box-shadow: 0 0 16px rgba(0,212,255,0.3);
+    }
+
+    /* PANES */
+    .pane { display: none; }
+    .pane.active { display: block; animation: paneIn 0.35s ease; }
+    @keyframes paneIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* FORM ELEMENTS */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { margin-bottom: 16px; position: relative; }
+    .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 7px;
+    }
+    .label-hint { font-size: 0.72rem; color: var(--text-dim); font-weight: 400; }
+    .input-wrap { position: relative; }
+    .form-input {
+      width: 100%;
+      padding: 13px 16px;
+      padding-right: 44px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+    .form-input:focus {
+      border-color: var(--cyan);
+      background: var(--bg-input-focus);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+    }
+    .form-input::placeholder { color: var(--text-dim); font-size: 0.88rem; }
+    .form-input.error { border-color: var(--red) !important; box-shadow: 0 0 0 3px rgba(255,71,87,0.1) !important; }
+    .form-input.success { border-color: var(--green) !important; }
+    .input-icon {
+      position: absolute;
+      right: 13px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s;
+    }
+    .input-icon:hover { color: var(--text-muted); }
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--red);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.show { display: block; }
+
+    /* password strength */
+    .strength-wrap { margin-top: 8px; }
+    .strength-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.35s, background 0.35s;
+    }
+    .strength-label { font-size: 0.72rem; color: var(--text-dim); }
+
+    /* checklist */
+    .pw-rules { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; margin-top: 10px; }
+    .pw-rule {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.25s;
+    }
+    .pw-rule.ok { color: var(--green); }
+    .pw-rule::before { content: '○'; font-size: 0.6rem; }
+    .pw-rule.ok::before { content: '●'; color: var(--green); }
+
+    /* checkbox row */
+    .check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .check-row input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--cyan);
+      margin-top: 2px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .check-row label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      cursor: pointer;
+    }
+    .check-row label a { color: var(--cyan); }
+    .check-row label a:hover { text-decoration: underline; }
+
+    /* form footer row */
+    .form-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    /* BUTTONS */
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      border-radius: var(--radius-xs);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      font-weight: 700;
+      background: var(--cyan);
+      color: #050d1a;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 22px rgba(0,212,255,0.3);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.2px;
+    }
+    .btn-submit:hover {
+      background: #33ddff;
+      box-shadow: 0 0 40px rgba(0,212,255,0.5);
+      transform: translateY(-1px);
+    }
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-submit .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(5,13,26,0.3);
+      border-top-color: #050d1a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 4px 0 16px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 0.75rem; color: var(--text-dim); white-space: nowrap; }
+
+    .btn-google {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius-xs);
+      background: transparent;
+      border: 1.5px solid var(--border-mid);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+    .btn-google:hover {
+      border-color: var(--border-bright);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .switch-text {
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .switch-text a {
+      color: var(--cyan);
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .switch-text a:hover { text-decoration: underline; }
+
+    /* forgot link */
+    .forgot-link {
+      font-size: 0.8rem;
+      color: var(--cyan);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .forgot-link:hover { opacity: 0.75; }
+
+    /* back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-bottom: 22px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--cyan); }
+
+    /* verify screen */
+    .verify-screen {
+      text-align: center;
+      padding: 20px 0;
+    }
+    .verify-icon {
+      font-size: 3.5rem;
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}
+    }
+    .verify-title { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; margin-bottom: 12px; }
+    .verify-sub   { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 28px; }
+    .verify-email-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      background: var(--cyan-dim);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: var(--cyan);
+      font-weight: 600;
+      margin-bottom: 28px;
+    }
+
+    /* ============================================================
+       TOAST
+    ============================================================ */
+    .toast-wrap {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid;
+      backdrop-filter: blur(20px);
+      font-size: 0.86rem;
+      min-width: 260px;
+      max-width: 340px;
+      line-height: 1.5;
+      animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+    .toast-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .toast-body { flex: 1; }
+    .toast-title { font-weight: 700; margin-bottom: 2px; }
+    .toast-msg   { color: var(--text-muted); font-size: 0.8rem; }
+    .toast-close { cursor: pointer; color: var(--text-dim); font-size: 1rem; align-self: flex-start; }
+    @keyframes toastIn {
+      from { opacity:0; transform: translateX(40px) scale(0.88); }
+      to   { opacity:1; transform: translateX(0) scale(1); }
+    }
+    .toast.out { animation: toastOut 0.3s ease forwards; }
+    @keyframes toastOut { to { opacity:0; transform: translateX(40px) scale(0.88); } }
+    .toast-success { background: rgba(0,230,118,0.09);  border-color: rgba(0,230,118,0.22); color: var(--green); }
+    .toast-error   { background: rgba(255,71,87,0.09);  border-color: rgba(255,71,87,0.22);  color: var(--red);   }
+    .toast-info    { background: rgba(0,212,255,0.07);  border-color: rgba(0,212,255,0.2);   color: var(--cyan);  }
+    .toast-warn    { background: rgba(240,180,41,0.09); border-color: rgba(240,180,41,0.22); color: var(--gold);  }
+
+    /* ============================================================
+       LOADING OVERLAY
+    ============================================================ */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s, pointer-events 0.5s;
+    }
+    .page-loader.gone { opacity: 0; pointer-events: none; }
+    .loader-ring {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .page-wrapper { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+      .right-panel { padding: 40px 24px; min-height: 100vh; }
+      .auth-card { max-width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .right-panel { padding: 32px 18px; }
+      .form-row { grid-template-columns: 1fr; }
+      .pw-rules  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="pageLoader">
+  <div class="loader-ring"></div>
+</div>
+
+<!-- CANVAS -->
+<canvas id="canvas"></canvas>
+
+<!-- ORBS -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- ============================================================
+     PAGE WRAPPER
+============================================================ -->
+<div class="page-wrapper">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="brand">
+      <div class="brand-icon">Q</div>
+      <div class="brand-name"><span>Quant</span>Edge</div>
+    </div>
+    <h1 class="left-headline">
+      Your AI Trading<br>
+      <span class="accent">Edge</span> Starts Here
+    </h1>
+    <p class="left-sub">
+      Join QuantEdge and let an AI-powered signal engine analyze BTC, ETH &amp; SOL
+      24/7 — generating BUY/SELL/HOLD signals while you focus on strategy.
+    </p>
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-dot">📡</div>
+        <div>
+          <div class="feature-text-title">Real-Time Signal Engine</div>
+          <div class="feature-text-desc">EMA crossovers + RSI + volume spikes scored into high-confidence signals.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">🛡️</div>
+        <div>
+          <div class="feature-text-title">Built-In Risk Management</div>
+          <div class="feature-text-desc">Stop-loss, take-profit, daily loss caps — all configurable by you.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">🔄</div>
+        <div>
+          <div class="feature-text-title">Demo Mode — Zero Risk</div>
+          <div class="feature-text-desc">Start with $10,000 simulated USDT. Switch to real trading when ready.</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot">📊</div>
+        <div>
+          <div class="feature-text-title">Full Performance Tracker</div>
+          <div class="feature-text-desc">Equity curve, win rate, P&amp;L per asset, and complete trade history.</div>
+        </div>
+      </div>
+    </div>
+    <!-- mini live ticker -->
+    <div class="mini-ticker" id="miniTicker">
+      <div class="mini-tick">
+        <span class="mt-coin">BTC</span>
+        <span class="mt-price" id="lp-btc">$—</span>
+        <span class="mt-chg" id="lp-btc-c">—</span>
+      </div>
+      <div class="mini-tick">
+        <span class="mt-coin">ETH</span>
+        <span class="mt-price" id="lp-eth">$—</span>
+        <span class="mt-chg" id="lp-eth-c">—</span>
+      </div>
+      <div class="mini-tick">
+        <span class="mt-coin">SOL</span>
+        <span class="mt-price" id="lp-sol">$—</span>
+        <span class="mt-chg" id="lp-sol-c">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="auth-card">
+
+      <!-- TOP INFO -->
+      <div class="auth-top">
+        <div class="auth-tag"><div class="dot-pulse"></div> Secure Authentication</div>
+        <h2 class="auth-title" id="authTitle">Welcome Back</h2>
+        <p  class="auth-sub"  id="authSub">Login to your QuantEdge dashboard and monitor your signals.</p>
+      </div>
+
+      <!-- TAB BAR -->
+      <div class="tab-bar" id="tabBar">
+        <button class="tab-btn active" onclick="switchPane('login')">Login</button>
+        <button class="tab-btn"        onclick="switchPane('register')">Register</button>
+      </div>
+
+      <!-- ========================
+           PANE: LOGIN
+      ========================= -->
+      <div class="pane active" id="pane-login">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrap">
+            <input class="form-input" type="email" id="li-email" placeholder="you@example.com" autocomplete="email" />
+            <span class="input-icon">✉</span>
+          </div>
+          <div class="field-error" id="li-email-err">Please enter a valid email.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="li-pass" placeholder="Enter your password" autocomplete="current-password" />
+            <span class="input-icon" onclick="toggleVis('li-pass',this)" title="Show/hide">👁</span>
+          </div>
+          <div class="field-error" id="li-pass-err">Password is required.</div>
+        </div>
+        <div class="form-footer-row">
+          <label class="check-row" style="margin:0">
+            <input type="checkbox" id="rememberMe" />
+            <span style="font-size:0.8rem;color:var(--text-muted)">Remember me</span>
+          </label>
+          <span class="forgot-link" onclick="switchPane('forgot')">Forgot password?</span>
+        </div>
+        <button class="btn-submit" id="loginBtn" onclick="doLogin()">
+          <div class="spinner"></div>
+          <span class="btn-text">🔐 Login to Dashboard</span>
+        </button>
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or continue with</span>
+          <div class="divider-line"></div>
+        </div>
+        <button class="btn-google" onclick="doGoogle()">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+        <div class="switch-text">
+          Don't have an account? <a onclick="switchPane('register')">Create one free →</a>
+        </div>
+      </div>
+
+      <!-- ========================
+           PANE: REGISTER
+      ========================= -->
+      <div class="pane" id="pane-register">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <div class="input-wrap">
+              <input class="form-input" type="text" id="rg-fname" placeholder="John" autocomplete="given-name" />
+              <span class="input-icon">👤</span>
+            </div>
+            <div class="field-error" id="rg-fname-err">First name required.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <div class="input-wrap">
+              <input class="form-input" type="text" id="rg-lname" placeholder="Doe" autocomplete="family-name" />
+              <span class="input-icon">👤</span>
+            </div>
+            <div class="field-error" id="rg-lname-err">Last name required.</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-wrap">
+            <input class="form-input" type="email" id="rg-email" placeholder="you@example.com" autocomplete="email" />
+            <span class="input-icon">✉</span>
+          </div>
+          <div class="field-error" id="rg-email-err">Enter a valid email.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Password
+            <span class="label-hint" id="strengthLabel">—</span>
+          </label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="rg-pass" placeholder="Min. 8 characters"
+                   autocomplete="new-password" oninput="evalStrength(this.value)" />
+            <span class="input-icon" onclick="toggleVis('rg-pass',this)">👁</span>
+          </div>
+          <div class="strength-wrap">
+            <div class="strength-bar"><div class="strength-fill" id="sFill"></div></div>
+            <div class="pw-rules">
+              <div class="pw-rule" id="r-len">8+ characters</div>
+              <div class="pw-rule" id="r-upper">Uppercase letter</div>
+              <div class="pw-rule" id="r-num">Number</div>
+              <div class="pw-rule" id="r-sym">Special character</div>
+            </div>
+          </div>
+          <div class="field-error" id="rg-pass-err">Password must meet all requirements.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-wrap">
+            <input class="form-input" type="password" id="rg-conf" placeholder="Repeat your password"
+                   autocomplete="new-password" oninput="checkMatch()" />
+            <span class="input-icon" onclick="toggleVis('rg-conf',this)">👁</span>
+          </div>
+          <div class="field-error" id="rg-conf-err">Passwords do not match.</div>
+        </div>
+        <div class="check-row">
+          <input type="checkbox" id="terms" />
+          <label for="terms">
+            I agree to QuantEdge's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            I understand that crypto trading involves significant financial risk.
+          </label>
+        </div>
+        <button class="btn-submit" id="regBtn" onclick="doRegister()">
+          <div class="spinner"></div>
+          <span class="btn-text">🚀 Create Free Account</span>
+        </button>
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or sign up with</span>
+          <div class="divider-line"></div>
+        </div>
+        <button class="btn-google" onclick="doGoogle()">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Sign up with Google
+        </button>
+        <div class="switch-text">
+          Already have an account? <a onclick="switchPane('login')">Login →</a>
+        </div>
+      </div>
+
+      <!-- ========================
+           PANE: FORGOT PASSWORD
+      ========================= -->
+      <div class="pane" id="pane-forgot">
+        <span class="back-link" onclick="switchPane('login')">← Back to Login</span>
+        <div class="form-group">
+          <label class="form-label">Registered Email Address</label>
+          <div class="input-wrap">
+            <input class="form-input" type="email" id="fp-email" placeholder="you@example.com" />
+            <span class="input-icon">✉</span>
+          </div>
+          <div class="field-error" id="fp-email-err">Enter a valid email.</div>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.65;margin-bottom:20px;">
+          We'll send a secure password reset link to this email. Check your spam folder if it doesn't arrive within 2 minutes.
+        </p>
+        <button class="btn-submit" id="fpBtn" onclick="doForgot()">
+          <div class="spinner"></div>
+          <span class="btn-text">📧 Send Reset Link</span>
+        </button>
+        <div class="switch-text" style="margin-top:12px">
+          Remembered it? <a onclick="switchPane('login')">Back to Login →</a>
+        </div>
+      </div>
+
+      <!-- ========================
+           PANE: EMAIL VERIFY
+      ========================= -->
+      <div class="pane" id="pane-verify">
+        <div class="verify-screen">
+          <div class="verify-icon">📬</div>
+          <div class="verify-title">Check Your Email</div>
+          <p class="verify-sub">
+            We've sent a verification link to your email address. Click the link to activate your account and access your dashboard.
+          </p>
+          <div class="verify-email-badge" id="verifyEmailBadge">you@example.com</div>
+          <button class="btn-submit" onclick="resendVerification()">
+            <span class="btn-text">🔄 Resend Verification Email</span>
+          </button>
+          <div class="switch-text" style="margin-top:16px">
+            Wrong email? <a onclick="switchPane('register')">Register again →</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /auth-card -->
+  </div><!-- /right-panel -->
+
+</div><!-- /page-wrapper -->
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ============================================================
+     FIREBASE SDK
+============================================================ -->
+<script type="module">
+  import { initializeApp }                          from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword,
+           signInWithEmailAndPassword, sendEmailVerification,
+           sendPasswordResetEmail, GoogleAuthProvider,
+           signInWithPopup, setPersistence,
+           browserLocalPersistence, browserSessionPersistence,
+           onAuthStateChanged }                     from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc,
+           serverTimestamp }                        from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+  /* ── CONFIG ─────────────────────────────────────────── */
+  const firebaseConfig = {
+    apiKey:            "AIzaSyB3XI2ywFjSR2laS4gmP6ugvMpD_WLYyeg",
+    authDomain:        "cryptobot-40f05.firebaseapp.com",
+    projectId:         "cryptobot-40f05",
+    storageBucket:     "cryptobot-40f05.firebasestorage.app",
+    messagingSenderId: "186287498883",
+    appId:             "1:186287498883:web:de1143bfa58a789d0b5db6"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  const gProvider = new GoogleAuthProvider();
+
+  /* ── HELPERS ─────────────────────────────────────────── */
+  function toast(type, title, msg, duration = 5000){
+    const wrap = document.getElementById('toastWrap');
+    const el   = document.createElement('div');
+    const icons = { success:'✅', error:'❌', info:'ℹ️', warn:'⚠️' };
+    el.className = `toast toast-${type}`;
+    el.innerHTML = `
+      <span class="toast-icon">${icons[type]||'🔔'}</span>
+      <div class="toast-body">
+        <div class="toast-title">${title}</div>
+        <div class="toast-msg">${msg}</div>
+      </div>
+      <span class="toast-close" onclick="this.parentElement.remove()">✕</span>`;
+    wrap.appendChild(el);
+    setTimeout(()=>{ el.classList.add('out'); el.addEventListener('animationend',()=>el.remove()); }, duration);
+  }
+  window._toast = toast;  // expose for non-module code
+
+  function setLoading(btnId, on){
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    btn.disabled = on;
+    btn.classList.toggle('loading', on);
+  }
+
+  function clearErrors(ids){
+    ids.forEach(id => { const e = document.getElementById(id); if(e){ e.classList.remove('show'); } });
+  }
+
+  function showError(id, show = true){
+    const e = document.getElementById(id);
+    if(e) e.classList.toggle('show', show);
+  }
+
+  function markInput(id, state){ // state: 'error' | 'success' | ''
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove('error','success');
+    if(state) el.classList.add(state);
+  }
+
+  /* ── CREATE FIRESTORE USER DOC ───────────────────────── */
+  async function createUserDoc(user, extraData = {}){
+    const ref = doc(db, 'users', user.uid);
+    const snap = await getDoc(ref);
+    if(snap.exists()) return; // already exists (Google re-login etc.)
+    await setDoc(ref, {
+      uid:          user.uid,
+      email:        user.email,
+      displayName:  user.displayName || extraData.displayName || '',
+      firstName:    extraData.firstName  || '',
+      lastName:     extraData.lastName   || '',
+      photoURL:     user.photoURL || '',
+      createdAt:    serverTimestamp(),
+      mode:         'demo',
+      demoBalance:  10000,
+      botState:     'stopped',
+      riskSettings: { stopLoss: 2, takeProfit: 4, maxTrades: 3, maxDailyLoss: 8, cooldown: 30 },
+      plan:         'free',
+      emailVerified: false,
+      provider:     extraData.provider || 'email'
+    });
+  }
+
+  /* ── AUTH STATE WATCHER ──────────────────────────────── */
+  onAuthStateChanged(auth, user => {
+    document.getElementById('pageLoader').classList.add('gone');
+    if(user && user.emailVerified){
+      // already verified — redirect to dashboard
+      window.location.href = 'dashboard.html';
+    }
+  });
+
+  /* ── LOGIN ───────────────────────────────────────────── */
+  window.doLogin = async function(){
+    const email = document.getElementById('li-email').value.trim();
+    const pass  = document.getElementById('li-pass').value;
+    const rem   = document.getElementById('rememberMe').checked;
+
+    clearErrors(['li-email-err','li-pass-err']);
+    let valid = true;
+    if(!email || !/\S+@\S+\.\S+/.test(email)){ markInput('li-email','error'); showError('li-email-err'); valid=false; }
+    if(!pass){ markInput('li-pass','error'); showError('li-pass-err'); valid=false; }
+    if(!valid) return;
+
+    setLoading('loginBtn', true);
+    try {
+      const persistence = rem ? browserLocalPersistence : browserSessionPersistence;
+      await setPersistence(auth, persistence);
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const user = cred.user;
+
+      if(!user.emailVerified){
+        toast('warn','Email Not Verified',
+          'Please check your inbox and verify your email before logging in.');
+        setLoading('loginBtn', false);
+        return;
+      }
+      markInput('li-email','success');
+      toast('success','Welcome Back!','Redirecting to your dashboard…');
+      setTimeout(()=> window.location.href = 'dashboard.html', 1500);
+
+    } catch(err){
+      setLoading('loginBtn', false);
+      const msgs = {
+        'auth/user-not-found':    ['li-email-err', 'No account found with this email.'],
+        'auth/wrong-password':    ['li-pass-err',  'Incorrect password. Try again.'],
+        'auth/invalid-credential':['li-pass-err',  'Invalid email or password.'],
+        'auth/too-many-requests': [null,            'Too many failed attempts. Please wait and try again.'],
+        'auth/user-disabled':     [null,            'This account has been disabled. Contact support.'],
+        'auth/network-request-failed': [null,       'Network error. Check your connection.']
+      };
+      const m = msgs[err.code];
+      if(m && m[0]){ showError(m[0]); toast('error','Login Failed', m[1]); }
+      else { toast('error','Login Failed', m ? m[1] : err.message); }
+    }
+  };
+
+  /* ── REGISTER ────────────────────────────────────────── */
+  window.doRegister = async function(){
+    const fname  = document.getElementById('rg-fname').value.trim();
+    const lname  = document.getElementById('rg-lname').value.trim();
+    const email  = document.getElementById('rg-email').value.trim();
+    const pass   = document.getElementById('rg-pass').value;
+    const conf   = document.getElementById('rg-conf').value;
+    const terms  = document.getElementById('terms').checked;
+
+    clearErrors(['rg-fname-err','rg-lname-err','rg-email-err','rg-pass-err','rg-conf-err']);
+    let valid = true;
+
+    if(!fname){ markInput('rg-fname','error'); showError('rg-fname-err'); valid=false; }
+    if(!lname){ markInput('rg-lname','error'); showError('rg-lname-err'); valid=false; }
+    if(!email || !/\S+@\S+\.\S+/.test(email)){ markInput('rg-email','error'); showError('rg-email-err'); valid=false; }
+    if(pass.length < 8 || !/[A-Z]/.test(pass) || !/[0-9]/.test(pass)){
+      markInput('rg-pass','error'); showError('rg-pass-err'); valid=false;
+    }
+    if(pass !== conf){ markInput('rg-conf','error'); showError('rg-conf-err'); valid=false; }
+    if(!terms){ toast('warn','Terms Required','Please accept the Terms of Service to continue.'); valid=false; }
+    if(!valid) return;
+
+    setLoading('regBtn', true);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      const user = cred.user;
+
+      // Create Firestore user document
+      await createUserDoc(user, {
+        firstName: fname, lastName: lname,
+        displayName: `${fname} ${lname}`,
+        provider: 'email'
+      });
+
+      // Send email verification
+      await sendEmailVerification(user);
+
+      // Show verify pane
+      document.getElementById('verifyEmailBadge').textContent = email;
+      switchPane('verify');
+      toast('success','Account Created!',
+        `Verification email sent to ${email}. Check your inbox!`, 7000);
+
+    } catch(err){
+      setLoading('regBtn', false);
+      const msgs = {
+        'auth/email-already-in-use': ['rg-email-err', 'This email is already registered. Try logging in.'],
+        'auth/invalid-email':        ['rg-email-err', 'Invalid email format.'],
+        'auth/weak-password':        ['rg-pass-err',  'Password is too weak.'],
+        'auth/network-request-failed': [null, 'Network error. Check your connection.']
+      };
+      const m = msgs[err.code];
+      if(m && m[0]){ markInput(m[0].split('-err')[0].replace('rg-','rg-'),'error'); showError(m[0]); toast('error','Registration Failed', m[1]); }
+      else { toast('error','Registration Failed', m ? m[1] : err.message); }
+    }
+  };
+
+  /* ── FORGOT PASSWORD ─────────────────────────────────── */
+  window.doForgot = async function(){
+    const email = document.getElementById('fp-email').value.trim();
+    clearErrors(['fp-email-err']);
+    if(!email || !/\S+@\S+\.\S+/.test(email)){
+      markInput('fp-email','error'); showError('fp-email-err'); return;
+    }
+    setLoading('fpBtn', true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      markInput('fp-email','success');
+      toast('success','Reset Email Sent!',
+        `Check ${email} for your password reset link. It expires in 1 hour.`, 7000);
+      setTimeout(()=>{ setLoading('fpBtn',false); switchPane('login'); }, 2500);
+    } catch(err){
+      setLoading('fpBtn', false);
+      const msgs = {
+        'auth/user-not-found':   'No account found with this email address.',
+        'auth/invalid-email':    'Invalid email format.',
+        'auth/too-many-requests':'Too many requests. Please wait a moment.',
+        'auth/network-request-failed':'Network error. Check your connection.'
+      };
+      toast('error','Reset Failed', msgs[err.code] || err.message);
+    }
+  };
+
+  /* ── GOOGLE AUTH ─────────────────────────────────────── */
+  window.doGoogle = async function(){
+    try {
+      gProvider.addScope('profile');
+      gProvider.addScope('email');
+      const result = await signInWithPopup(auth, gProvider);
+      const user   = result.user;
+      const isNew  = result._tokenResponse?.isNewUser;
+
+      if(isNew){
+        const nameParts = (user.displayName||'').split(' ');
+        await createUserDoc(user, {
+          firstName:   nameParts[0] || '',
+          lastName:    nameParts.slice(1).join(' ') || '',
+          displayName: user.displayName || '',
+          provider:    'google'
+        });
+        toast('success','Account Created!','Welcome to QuantEdge. Redirecting to dashboard…');
+      } else {
+        toast('success','Welcome Back!','Google login successful. Redirecting…');
+      }
+      setTimeout(()=> window.location.href = 'dashboard.html', 1500);
+    } catch(err){
+      if(err.code === 'auth/popup-closed-by-user') return;
+      const msgs = {
+        'auth/account-exists-with-different-credential':
+          'An account already exists with this email using a different sign-in method.',
+        'auth/network-request-failed': 'Network error. Check your connection.'
+      };
+      toast('error','Google Sign-In Failed', msgs[err.code] || err.message);
+    }
+  };
+
+  /* ── RESEND VERIFICATION ─────────────────────────────── */
+  window.resendVerification = async function(){
+    const user = auth.currentUser;
+    if(!user){ toast('error','Error','No user session found. Please register again.'); return; }
+    try {
+      await sendEmailVerification(user);
+      toast('success','Email Sent!','Verification email resent. Check your inbox and spam folder.');
+    } catch(err){
+      toast('error','Failed to Resend', err.code === 'auth/too-many-requests'
+        ? 'Too many requests. Wait a few minutes before trying again.'
+        : err.message);
+    }
+  };
+
+</script>
+
+<!-- ============================================================
+     NON-MODULE JS (UI helpers)
+============================================================ -->
+<script>
+/* ── PARTICLE CANVAS ──────────────────────────────────── */
+(function(){
+  const cv  = document.getElementById('canvas');
+  const ctx = cv.getContext('2d');
+  let W, H, pts = [];
+  function resize(){ W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  const N = window.innerWidth < 768 ? 45 : 80;
+  const MAX = 120;
+  function rnd(a,b){ return Math.random()*(b-a)+a; }
+  for(let i=0;i<N;i++) pts.push({
+    x:rnd(0,W), y:rnd(0,H),
+    vx:rnd(-0.3,0.3), vy:rnd(-0.5,-0.1),
+    r:rnd(1,2.5),
+    gold: Math.random() > 0.75
+  });
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<MAX){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(0,212,255,${0.1*(1-d/MAX)})`;
+          ctx.lineWidth=0.6;
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    pts.forEach(p=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.globalAlpha = 0.55;
+      ctx.fillStyle = p.gold ? '#f0b429' : '#00d4ff';
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.y<-8){p.y=H+8;p.x=rnd(0,W);}
+      if(p.x<-8)p.x=W+8;
+      if(p.x>W+8)p.x=-8;
+    });
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── PANE SWITCHER ───────────────────────────────────── */
+const paneConfig = {
+  login:    { title:'Welcome Back',      sub:'Login to your QuantEdge dashboard.',        tabs:true  },
+  register: { title:'Create Account',    sub:'Join thousands of AI-powered traders.',      tabs:true  },
+  forgot:   { title:'Reset Password',    sub:'We\'ll send a reset link to your email.',   tabs:false },
+  verify:   { title:'Verify Your Email', sub:'One last step to activate your account.',   tabs:false }
+};
+function switchPane(name){
+  ['login','register','forgot','verify'].forEach(p=>{
+    document.getElementById(`pane-${p}`).classList.toggle('active', p===name);
+  });
+  const cfg = paneConfig[name];
+  document.getElementById('authTitle').textContent = cfg.title;
+  document.getElementById('authSub').textContent   = cfg.sub;
+  document.getElementById('tabBar').style.display  = cfg.tabs ? 'flex' : 'none';
+  if(name==='login'||name==='register'){
+    document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+      b.classList.toggle('active',(i===0&&name==='login')||(i===1&&name==='register'));
+    });
+  }
+}
+window.switchPane = switchPane;
+
+/* ── PASSWORD VISIBILITY ──────────────────────────────── */
+function toggleVis(inputId, icon){
+  const el = document.getElementById(inputId);
+  if(!el) return;
+  const isPass = el.type === 'password';
+  el.type = isPass ? 'text' : 'password';
+  icon.textContent = isPass ? '🙈' : '👁';
+}
+window.toggleVis = toggleVis;
+
+/* ── PASSWORD STRENGTH ────────────────────────────────── */
+function evalStrength(val){
+  const rules = [
+    { id:'r-len',   test: v => v.length >= 8 },
+    { id:'r-upper', test: v => /[A-Z]/.test(v) },
+    { id:'r-num',   test: v => /[0-9]/.test(v) },
+    { id:'r-sym',   test: v => /[^A-Za-z0-9]/.test(v) }
+  ];
+  let score = 0;
+  rules.forEach(r => {
+    const ok = r.test(val);
+    if(ok) score++;
+    document.getElementById(r.id).classList.toggle('ok', ok);
+  });
+  const fill   = document.getElementById('sFill');
+  const label  = document.getElementById('strengthLabel');
+  const pct    = (score/4)*100;
+  const colors = ['','#ff4757','#f0b429','#f0b429','#00e676'];
+  const labels = ['','Weak','Fair','Good','Strong'];
+  fill.style.width      = pct+'%';
+  fill.style.background = colors[score]||'#ff4757';
+  label.textContent     = labels[score]||'—';
+  label.style.color     = colors[score]||'var(--text-dim)';
+}
+window.evalStrength = evalStrength;
+
+/* ── CONFIRM MATCH ────────────────────────────────────── */
+function checkMatch(){
+  const p = document.getElementById('rg-pass').value;
+  const c = document.getElementById('rg-conf').value;
+  if(!c) return;
+  const match = p===c;
+  document.getElementById('rg-conf').classList.toggle('success', match);
+  document.getElementById('rg-conf').classList.toggle('error', !match);
+  document.getElementById('rg-conf-err').classList.toggle('show', !match);
+}
+window.checkMatch = checkMatch;
+
+/* ── LIVE PRICE TICKER (left panel) ──────────────────── */
+async function fetchLeftPrices(){
+  try {
+    const res  = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=%5B%22BTCUSDT%22%2C%22ETHUSDT%22%2C%22SOLUSDT%22%5D');
+    const data = await res.json();
+    const map  = { BTCUSDT:['lp-btc','lp-btc-c'], ETHUSDT:['lp-eth','lp-eth-c'], SOLUSDT:['lp-sol','lp-sol-c'] };
+    data.forEach(d => {
+      const ids = map[d.symbol]; if(!ids) return;
+      const price  = parseFloat(d.lastPrice);
+      const change = parseFloat(d.priceChangePercent);
+      const up     = change >= 0;
+      const pEl    = document.getElementById(ids[0]);
+      const cEl    = document.getElementById(ids[1]);
+      if(pEl) pEl.textContent = '$' + price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      if(cEl){ cEl.textContent = (up?'+':'')+change.toFixed(2)+'%'; cEl.className='mt-chg '+(up?'up':'down'); }
+    });
+  } catch(e){
+    // fallback
+    [['lp-btc','$104,280'],['lp-eth','$3,812'],['lp-sol','$168']].forEach(([id,v])=>{
+      const el=document.getElementById(id); if(el) el.textContent=v;
+    });
+  }
+}
+fetchLeftPrices();
+setInterval(fetchLeftPrices, 15000);
+
+/* ── ENTER KEY SHORTCUTS ──────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if(e.key !== 'Enter') return;
+  const active = document.querySelector('.pane.active');
+  if(!active) return;
+  const id = active.id;
+  if(id==='pane-login')    window.doLogin && window.doLogin();
+  if(id==='pane-register') window.doRegister && window.doRegister();
+  if(id==='pane-forgot')   window.doForgot && window.doForgot();
+});
+</script>
+</body>
+</html>
