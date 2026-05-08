@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QuantEdge — Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#050d1a;--bg2:#07101f;--bg3:#091424;--bg4:#0c1830;
+  --card:rgba(255,255,255,.036);--card2:rgba(0,212,255,.055);
+  --cyan:#00d4ff;--cd:rgba(0,212,255,.14);--cg:rgba(0,212,255,.3);
+  --gold:#f0b429;--gd:rgba(240,180,41,.14);
+  --green:#00e676;--grd:rgba(0,230,118,.12);
+  --red:#ff4757;--rdd:rgba(255,71,87,.12);
+  --orange:#ff9f43;--ord:rgba(255,159,67,.12);
+  --purple:#a78bfa;--pd:rgba(167,139,250,.12);
+  --text:#e8f4fd;--tm:rgba(232,244,253,.55);--td:rgba(232,244,253,.28);
+  --b:rgba(0,212,255,.1);--bb:rgba(0,212,255,.25);--bbb:rgba(0,212,255,.45);
+  --fh:'Bricolage Grotesque',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:14px;--rs:9px;--rxs:6px;--nb:60px;--sb:230px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--cd);border-radius:2px;}
+a{text-decoration:none;color:inherit;}
+button,input,select{font-family:var(--fb);}
+#loader{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s;}
+#loader.gone{opacity:0;pointer-events:none;}
+.ld-logo{font-family:var(--fh);font-size:2rem;font-weight:800;}.ld-logo span{color:var(--cyan);text-shadow:0 0 24px var(--cg);}
+.ld-bar{width:220px;height:3px;background:var(--b);border-radius:2px;overflow:hidden;}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));animation:ldA 1.6s ease-in-out infinite;}
+@keyframes ldA{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
+.ld-sub{font-size:.75rem;color:var(--td);letter-spacing:2px;text-transform:uppercase;}
+.shell{display:grid;grid-template-columns:var(--sb) 1fr;grid-template-rows:var(--nb) 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:rgba(5,13,26,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:300;}
+.tb-logo{font-family:var(--fh);font-size:1.3rem;font-weight:800;white-space:nowrap;}.tb-logo span{color:var(--cyan);text-shadow:0 0 16px var(--cg);}
+.tb-sep{width:1px;height:22px;background:var(--b);}
+.tb-page{font-size:.78rem;font-weight:600;color:var(--tm);padding:4px 12px;background:var(--card);border:1px solid var(--b);border-radius:50px;}
+.tb-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.ib{width:36px;height:36px;border-radius:9px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all .25s;position:relative;flex-shrink:0;}
+.ib:hover{border-color:var(--bb);background:var(--cd);}
+.user-area{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;background:var(--card);border:1px solid var(--b);border-radius:50px;cursor:pointer;transition:.25s;}
+.user-area:hover{border-color:var(--bb);}
+.ua-av{width:28px;height:28px;border-radius:50%;background:var(--cyan);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.78rem;font-weight:800;color:#050d1a;flex-shrink:0;}
+.ua-nm{font-size:.78rem;font-weight:600;color:var(--tm);}
+.dd{position:absolute;top:calc(var(--nb) + 4px);right:20px;background:#08152b;border:1px solid var(--bbb);border-radius:var(--r);padding:6px;min-width:190px;z-index:400;display:none;box-shadow:0 16px 48px rgba(0,0,0,.5);}
+.dd.open{display:block;animation:ddIn .2s ease;}
+@keyframes ddIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.dd-head{padding:10px 12px;border-bottom:1px solid var(--b);margin-bottom:5px;}
+.dd-name{font-weight:700;font-size:.86rem;}.dd-email{font-size:.7rem;color:var(--td);margin-top:2px;}
+.dd-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;font-size:.82rem;cursor:pointer;color:var(--tm);transition:.2s;}
+.dd-item:hover{background:var(--cd);color:var(--text);}
+.dd-item.red{color:var(--red);}.dd-item.red:hover{background:var(--rdd);}
+.sidebar{grid-column:1;grid-row:2;background:var(--bg2);border-right:1px solid var(--b);display:flex;flex-direction:column;position:sticky;top:var(--nb);height:calc(100vh - var(--nb));overflow-y:auto;overflow-x:hidden;}
+.sb-sec{font-size:.62rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--td);padding:18px 18px 7px;}
+.ni{display:flex;align-items:center;gap:12px;padding:10px 18px;font-size:.84rem;font-weight:500;color:var(--tm);transition:.22s;text-decoration:none;border-left:3px solid transparent;}
+.ni:hover{background:var(--cd);color:var(--text);}
+.ni.active{background:linear-gradient(90deg,var(--cd),transparent);color:var(--cyan);border-left-color:var(--cyan);}
+.ni-ic{font-size:1.05rem;width:20px;text-align:center;flex-shrink:0;}.ni-lb{flex:1;}
+.sb-div{height:1px;background:var(--b);margin:8px 14px;}
+.main{grid-column:2;grid-row:2;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px;}
+.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);flex-wrap:wrap;gap:10px;}
+.ct{font-family:var(--fh);font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:7px;}
+.cb{padding:16px 18px;}
+.tab-nav{display:flex;gap:4px;flex-wrap:wrap;padding:8px 14px;background:var(--bg3);border-bottom:1px solid var(--b);overflow-x:auto;}
+.tab-nav-btn{padding:7px 14px;border-radius:50px;font-size:.72rem;font-weight:600;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--tm);transition:.22s;white-space:nowrap;}
+.tab-nav-btn:hover{color:var(--text);background:rgba(0,212,255,.05);}
+.tab-nav-btn.active{background:var(--cd);border-color:var(--bb);color:var(--cyan);}
+.setting-section{margin-bottom:20px;}
+.setting-section-title{font-size:.7rem;color:var(--td);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--b);}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--b);border-radius:var(--rxs);margin-bottom:6px;gap:12px;flex-wrap:wrap;}
+.setting-row:hover{border-color:var(--bb);}
+.setting-label{flex:1;min-width:150px;}
+.setting-label-title{font-size:.8rem;font-weight:500;margin-bottom:1px;}
+.setting-label-desc{font-size:.67rem;color:var(--td);}
+.setting-control{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.setting-input{padding:7px 12px;background:var(--bg4);border:1px solid var(--b);border-radius:var(--rxs);color:var(--text);font-family:var(--fm);font-size:.78rem;outline:none;width:180px;transition:.25s;}
+.setting-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,212,255,.1);}
+.setting-input.sm{width:100px;}
+.setting-input.lg{width:280px;}
+.setting-select{padding:7px 12px;background:var(--bg4);border:1px solid var(--b);border-radius:var(--rxs);color:var(--text);font-size:.78rem;outline:none;cursor:pointer;min-width:140px;}
+.toggle-sw{width:38px;height:20px;border-radius:10px;cursor:pointer;position:relative;transition:.3s;flex-shrink:0;}
+.toggle-sw.on{background:var(--cyan);box-shadow:0 0 10px var(--cd);}
+.toggle-sw.off{background:var(--b);}
+.toggle-sw::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.3s;}
+.toggle-sw.on::after{left:20px;}
+.btn{padding:8px 16px;border-radius:var(--rs);font-size:.78rem;font-weight:600;cursor:pointer;transition:.25s;border:1px solid;}
+.btn-primary{background:var(--cyan);border-color:var(--cyan);color:#050d1a;}
+.btn-primary:hover{background:#33ddff;}
+.btn-outline{background:transparent;border-color:var(--bb);color:var(--cyan);}
+.btn-outline:hover{background:var(--cd);}
+.btn-danger{background:var(--rdd);border-color:rgba(255,71,87,.3);color:var(--red);}
+.btn-danger:hover{background:rgba(255,71,87,.2);}
+.btn-save{width:100%;padding:12px;margin-top:12px;border-radius:var(--rs);font-size:.85rem;font-weight:700;cursor:pointer;transition:.28s;background:var(--cyan);border:none;color:#050d1a;}
+.btn-save:hover{background:#33ddff;}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.status-connected{background:var(--green);box-shadow:0 0 6px var(--green);}
+.status-disconnected{background:var(--red);box-shadow:0 0 6px var(--red);}
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
+.toast{display:flex;align-items:flex-start;gap:9px;padding:12px 15px;border-radius:12px;border:1px solid;backdrop-filter:blur(20px);font-size:.82rem;min-width:240px;max-width:310px;animation:tIn .38s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 28px rgba(0,0,0,.45);pointer-events:all;}
+@keyframes tIn{from{opacity:0;transform:translateX(36px) scale(.88);}to{opacity:1;transform:translateX(0) scale(1);}}
+.toast.out{animation:tOut .28s ease forwards;}
+@keyframes tOut{to{opacity:0;transform:translateX(36px) scale(.88);}}
+.t-success{background:rgba(0,230,118,.09);border-color:rgba(0,230,118,.2);color:var(--green);}
+.t-error{background:rgba(255,71,87,.09);border-color:rgba(255,71,87,.2);color:var(--red);}
+.t-info{background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.18);color:var(--cyan);}
+.t-warn{background:rgba(255,159,67,.09);border-color:rgba(255,159,67,.2);color:var(--orange);}
+.t-ico{font-size:.95rem;flex-shrink:0;}.t-body{flex:1;}
+.t-title{font-weight:700;margin-bottom:1px;}.t-msg{color:var(--tm);font-size:.73rem;}
+.modal-ov{position:fixed;inset:0;background:rgba(5,13,26,.88);backdrop-filter:blur(10px);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .28s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-box{background:#08152b;border:1px solid var(--bbb);border-radius:18px;padding:28px;width:100%;max-width:440px;transform:scale(.92);transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.modal-ov.open .modal-box{transform:scale(1);}
+.modal-icon{font-size:2.4rem;text-align:center;margin-bottom:12px;}
+.modal-title{font-family:var(--fh);font-size:1.15rem;font-weight:800;text-align:center;margin-bottom:8px;}
+.modal-msg{font-size:.82rem;color:var(--tm);text-align:center;line-height:1.65;margin-bottom:22px;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mbtn{padding:11px;border-radius:var(--rs);font-size:.85rem;font-weight:700;cursor:pointer;transition:.25s;border:1px solid;}
+.mbtn-cancel{background:var(--card);border-color:var(--b);color:var(--tm);}
+.mbtn-ok{background:var(--rdd);border-color:rgba(255,71,87,.3);color:var(--red);}
+.mbtn-ok.green{background:var(--grd);border-color:rgba(0,230,118,.3);color:var(--green);}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,14,29,.97);backdrop-filter:blur(20px);border-top:1px solid var(--b);padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:200;}
+.mn{display:flex;justify-content:space-around;}
+.mn-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;font-size:.58rem;color:var(--td);transition:.22s;text-decoration:none;}
+.mn-item.active,.mn-item:hover{color:var(--cyan);}
+.mn-icon{font-size:1.15rem;}
+@media(max-width:1100px){:root{--sb:62px;}.sb-sec,.ni-lb{display:none;}.ni{padding:13px;justify-content:center;}}
+@media(max-width:768px){:root{--sb:0px;}.shell{grid-template-columns:1fr;}.sidebar{display:none;}.main{padding:12px;gap:12px;padding-bottom:75px;}.mob-nav{display:block;}.setting-row{flex-direction:column;align-items:flex-start;}}
+@media(max-width:480px){.topbar{padding:0 12px;gap:8px;}.tb-logo{font-size:1.1rem;}.ua-nm{display:none;}.setting-input{width:100%;}.setting-input.lg{width:100%;}}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="ld-logo"><span>Quant</span>Edge</div><div class="ld-bar"><div class="ld-fill"></div></div><div class="ld-sub">Loading Settings…</div></div>
+<div class="modal-ov" id="confirmModal"><div class="modal-box"><div class="modal-icon" id="mIco">⚠️</div><div class="modal-title" id="mTit">Confirm</div><div class="modal-msg" id="mMsg">Are you sure?</div><div class="modal-btns"><button class="mbtn mbtn-cancel" onclick="window.closeModal()">Cancel</button><button class="mbtn mbtn-ok" id="mOk" onclick="window.runConfirm()">Confirm</button></div></div></div>
+<div class="dd" id="userDD"><div class="dd-head"><div class="dd-name" id="ddName">Trader</div><div class="dd-email" id="ddEmail">—</div></div><a class="dd-item" href="dashboard.html">🏠 Dashboard</a><a class="dd-item" href="charts.html">📊 Live Charts</a><a class="dd-item" href="performance.html">📈 Performance</a><a class="dd-item" href="history.html">🕐 Trade History</a><div class="dd-item red" onclick="window.doLogout()">🚪 Logout</div></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="shell">
+<header class="topbar">
+  <div class="tb-logo"><span>Quant</span>Edge</div><div class="tb-sep"></div><div class="tb-page">⚙️ Settings</div>
+  <div class="tb-right">
+    <div class="ib" onclick="window.location.href='dashboard.html'">🏠</div>
+    <div class="user-area" onclick="window.toggleDD()"><div class="ua-av" id="navAva">Q</div><span class="ua-nm" id="navName">Trader</span></div>
+  </div>
+</header>
+<aside class="sidebar">
+  <div class="sb-sec">Main</div>
+  <a class="ni" href="dashboard.html"><span class="ni-ic">🏠</span><span class="ni-lb">Dashboard</span></a>
+  <a class="ni" href="charts.html"><span class="ni-ic">📊</span><span class="ni-lb">Live Charts</span></a>
+  <a class="ni" href="signals.html"><span class="ni-ic">📡</span><span class="ni-lb">Signal Feed</span></a>
+  <a class="ni" href="bot.html"><span class="ni-ic">🤖</span><span class="ni-lb">Bot Control</span></a>
+  <div class="sb-div"></div>
+  <div class="sb-sec">Analytics</div>
+  <a class="ni" href="performance.html"><span class="ni-ic">📈</span><span class="ni-lb">Performance</span></a>
+  <a class="ni" href="history.html"><span class="ni-ic">🕐</span><span class="ni-lb">Trade History</span></a>
+  <div class="sb-div"></div>
+  <a class="ni active" href="settings.html"><span class="ni-ic">⚙️</span><span class="ni-lb">Settings</span></a>
+  <div class="ni" style="color:var(--red)" onclick="window.doLogout()"><span class="ni-ic">🚪</span><span class="ni-lb">Logout</span></div>
+</aside>
+<main class="main">
+  <div class="card">
+    <div class="tab-nav" id="tabNav">
+      <button class="tab-nav-btn active" onclick="window.switchTab('profile',this)">👤 Profile</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('exchange',this)">🔗 Exchange</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('trading',this)">📊 Trading</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('risk',this)">🛡️ Risk</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('ai',this)">🧠 AI</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('notifications',this)">🔔 Alerts</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('display',this)">🎨 Display</button>
+      <button class="tab-nav-btn" onclick="window.switchTab('security',this)">🔒 Security</button>
+    </div>
+    <div class="cb" id="tabContent"></div>
+  </div>
+</main>
+</div>
+<div class="mob-nav"><div class="mn"><a class="mn-item" href="dashboard.html"><div class="mn-icon">🏠</div>Home</a><a class="mn-item" href="charts.html"><div class="mn-icon">📊</div>Charts</a><a class="mn-item" href="bot.html"><div class="mn-icon">🤖</div>Bot</a><a class="mn-item active" href="settings.html"><div class="mn-icon">⚙️</div>Settings</a></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB3XI2ywFjSR2laS4gmP6ugvMpD_WLYyeg",
+  authDomain: "cryptobot-40f05.firebaseapp.com",
+  projectId: "cryptobot-40f05",
+  storageBucket: "cryptobot-40f05.firebasestorage.app",
+  messagingSenderId: "186287498883",
+  appId: "1:186287498883:web:de1143bfa58a789d0b5db6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.S = {
+  uid: null,
+  userEmail: '',
+  activeTab: 'profile',
+  settings: {
+    // Profile
+    firstName: '', lastName: '', displayName: '', timezone: 'UTC', currency: 'USD',
+    // Exchange
+    exchange: 'bybit', tradingMode: 'demo', bybitApiKey: '', bybitApiSecret: '', binanceApiKey: '', binanceApiSecret: '',
+    // Trading
+    defaultTradeSize: 10, defaultStopLoss: 5, defaultTakeProfit: 15, defaultMaxTrades: 3, defaultLeverage: 1, orderType: 'market',
+    // Risk
+    dailyLossLimit: 5, maxDrawdownLimit: 20, positionSizing: 'fixed', maxPositionSize: 1000, minTradeSize: 10, cooldownSeconds: 30, hardStopLoss: 8, maxLeverage: 10, confirmOver: 500, autoPauseLosses: 3,
+    // AI
+    aiEnabled: true, aiSensitivity: 'balanced', aiMinConfidence: 60, aiCrashDetection: true, aiLearning: true, minSignalScore: 2, signalSources: { ema: true, rsi: true, volume: true, momentum: true, bollinger: true }, signalCooldown: 30,
+    // Notifications
+    notifyTradeOpen: true, notifyTradeClose: true, notifyStopLoss: true, notifyTakeProfit: true, notifyDailySummary: true, notifyWeekly: false, notifyBrowser: false, notifyEmail: false, notifySound: true,
+    // Display
+    defaultTimeframe: '1M', defaultChartType: 'candlestick', defaultIndicators: { ema: true, bb: true, volume: false }, compactMode: false, animationSpeed: 'normal', landingPage: 'dashboard', sidebarCollapsed: false, autoRefresh: 'realtime',
+    // Security
+    sessionTimeout: 30, twoFactorEnabled: false
+  },
+  pendingCB: null
+};
+
+function showToast(type, title, msg, dur = 4000) {
+  const w = document.getElementById('toastWrap'), e = document.createElement('div');
+  const ic = { success: '✅', error: '❌', info: 'ℹ️', warn: '⚠️' };
+  e.className = 'toast t-' + type;
+  e.innerHTML = `<span class="t-ico">${ic[type]}</span><div class="t-body"><div class="t-title">${title}</div><div class="t-msg">${msg}</div></div>`;
+  w.appendChild(e);
+  setTimeout(() => { e.classList.add('out'); e.addEventListener('animationend', () => e.remove(), { once: true }); }, dur);
+}
+
+window.closeModal = () => document.getElementById('confirmModal').classList.remove('open');
+window.runConfirm = () => { window.closeModal(); if (window.S.pendingCB) { window.S.pendingCB(); window.S.pendingCB = null; } };
+
+function confirmAction(icon, title, msg, btnText, callback, color = 'red') {
+  document.getElementById('mIco').textContent = icon;
+  document.getElementById('mTit').textContent = title;
+  document.getElementById('mMsg').textContent = msg;
+  const ok = document.getElementById('mOk');
+  ok.textContent = btnText;
+  ok.className = 'mbtn mbtn-ok' + (color === 'green' ? ' green' : '');
+  window.S.pendingCB = callback;
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+window.toggleDD = () => document.getElementById('userDD')?.classList.toggle('open');
+document.addEventListener('click', e => { if (!e.target.closest('.user-area') && !e.target.closest('.dd')) document.getElementById('userDD').classList.remove('open'); });
+
+window.switchTab = (tab, btn) => {
+  window.S.activeTab = tab;
+  document.querySelectorAll('.tab-nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTab();
+};
+
+window.toggleSetting = (key) => {
+  window.S.settings[key] = !window.S.settings[key];
+  renderTab();
+};
+
+window.toggleSignalSource = (key) => {
+  window.S.settings.signalSources[key] = !window.S.settings.signalSources[key];
+  renderTab();
+};
+
+window.toggleIndicator = (key) => {
+  window.S.settings.defaultIndicators[key] = !window.S.settings.defaultIndicators[key];
+  renderTab();
+};
+
+window.updateSetting = (key, value) => {
+  window.S.settings[key] = value;
+};
+
+async function saveSettings() {
+  if (!window.S.uid) return;
+  try {
+    await updateDoc(doc(db, 'users', window.S.uid), { settings: window.S.settings, firstName: window.S.settings.firstName, lastName: window.S.settings.lastName });
+    showToast('success', 'Settings Saved', 'All settings saved successfully');
+  } catch(e) { showToast('error', 'Error', 'Failed to save settings'); }
+}
+
+function renderTab() {
+  const c = document.getElementById('tabContent');
+  const s = window.S.settings;
+  const t = window.S.activeTab;
+  const toggle = (key, label) => `<div class="setting-row"><div class="setting-label"><div class="setting-label-title">${label}</div></div><div class="setting-control"><div class="toggle-sw ${s[key] ? 'on' : 'off'}" onclick="window.toggleSetting('${key}');renderTab()"></div></div></div>`;
+  const select = (key, label, opts) => `<div class="setting-row"><div class="setting-label"><div class="setting-label-title">${label}</div></div><div class="setting-control"><select class="setting-select" onchange="window.updateSetting('${key}',this.value)">${opts.map(o => `<option value="${o.v}" ${s[key]===o.v?'selected':''}>${o.l}</option>`).join('')}</select></div></div>`;
+  const input = (key, label, type='text', cls='') => `<div class="setting-row"><div class="setting-label"><div class="setting-label-title">${label}</div></div><div class="setting-control"><input class="setting-input ${cls}" type="${type}" value="${s[key]||''}" onchange="window.updateSetting('${key}',this.value)" placeholder="${label}"/></div></div>`;
+
+  if (t === 'profile') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">👤 Personal Information</div>${input('firstName','First Name')}${input('lastName','Last Name')}${input('displayName','Display Name')}${select('timezone','Time Zone',[{v:'UTC',l:'UTC'},{v:'America/New_York',l:'Eastern (EST)'},{v:'America/Chicago',l:'Central (CST)'},{v:'America/Denver',l:'Mountain (MST)'},{v:'America/Los_Angeles',l:'Pacific (PST)'},{v:'Europe/London',l:'London (GMT)'},{v:'Asia/Tokyo',l:'Tokyo (JST)'}])}${select('currency','Currency',[{v:'USD',l:'USD ($)'},{v:'EUR',l:'EUR (€)'},{v:'GBP',l:'GBP (£)'},{v:'JPY',l:'JPY (¥)'}])}</div><button class="btn-save" onclick="saveSettings()">💾 Save Profile Settings</button>`;
+  } else if (t === 'exchange') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">🔗 Exchange Configuration</div>${select('exchange','Primary Exchange',[{v:'bybit',l:'Bybit'},{v:'binance',l:'Binance'}])}${select('tradingMode','Trading Mode',[{v:'demo',l:'Demo (Paper Trading)'},{v:'live',l:'Live Trading'}])}<div class="setting-section-title" style="margin-top:16px;">Bybit API Keys</div>${input('bybitApiKey','API Key','password','lg')}${input('bybitApiSecret','API Secret','password','lg')}<div class="setting-row"><div class="setting-label"><div class="setting-label-title">Connection Status</div></div><div class="setting-control"><span class="status-dot status-disconnected" id="bybitStatus"></span><span style="font-size:.75rem;color:var(--td)">Not connected</span><button class="btn btn-outline" onclick="showToast('info','Testing','Testing connection…')" style="margin-left:8px;">Test</button></div></div><div class="setting-section-title" style="margin-top:16px;">Binance API Keys (Optional)</div>${input('binanceApiKey','API Key','password','lg')}${input('binanceApiSecret','API Secret','password','lg')}</div><button class="btn-save" onclick="saveSettings()">💾 Save Exchange Settings</button>`;
+  } else if (t === 'trading') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">📊 Default Trading Parameters</div>${input('defaultTradeSize','Default Trade Size (% of balance)','number','sm')}${input('defaultStopLoss','Default Stop-Loss (%)','number','sm')}${input('defaultTakeProfit','Default Take-Profit (%)','number','sm')}${input('defaultMaxTrades','Max Concurrent Trades','number','sm')}${input('defaultLeverage','Default Leverage (1x-100x)','number','sm')}${select('orderType','Order Type',[{v:'market',l:'Market Order'},{v:'limit',l:'Limit Order'}])}</div><button class="btn-save" onclick="saveSettings()">💾 Save Trading Settings</button>`;
+  } else if (t === 'risk') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">🛡️ Risk Management</div>${input('dailyLossLimit','Daily Loss Limit (%)','number','sm')}${input('maxDrawdownLimit','Max Drawdown Limit (%)','number','sm')}${select('positionSizing','Position Sizing Method',[{v:'fixed',l:'Fixed %'},{v:'kelly',l:'Kelly Criterion'},{v:'fixedAmount',l:'Fixed $ Amount'}])}${input('maxPositionSize','Max Position Size ($)','number','sm')}${input('minTradeSize','Min Trade Size ($)','number','sm')}${input('cooldownSeconds','Cooldown Between Trades (seconds)','number','sm')}<div class="setting-section-title" style="margin-top:16px;">Safety Features</div>${input('hardStopLoss','Hard Stop-Loss Floor (%)','number','sm')}${input('maxLeverage','Maximum Leverage Cap','number','sm')}${input('confirmOver','Require Confirmation Over ($)','number','sm')}${input('autoPauseLosses','Auto-Pause After Consecutive Losses','number','sm')}</div><button class="btn-save" onclick="saveSettings()">💾 Save Risk Settings</button>`;
+  } else if (t === 'ai') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">🧠 AI Engine</div>${toggle('aiEnabled','AI Trading Engine')}${select('aiSensitivity','AI Sensitivity',[{v:'conservative',l:'Conservative'},{v:'balanced',l:'Balanced'},{v:'aggressive',l:'Aggressive'}])}${input('aiMinConfidence','AI Min Confidence (%)','number','sm')}${toggle('aiCrashDetection','AI Crash Detection')}${toggle('aiLearning','AI Learning Mode')}<div class="setting-section-title" style="margin-top:16px;">Signal Preferences</div>${input('minSignalScore','Min Signal Score (0-4)','number','sm')}${input('signalCooldown','Signal Cooldown (seconds)','number','sm')}<div class="setting-row"><div class="setting-label"><div class="setting-label-title">Signal Sources</div></div><div class="setting-control" style="flex-wrap:wrap;gap:4px;">${['ema','rsi','volume','momentum','bollinger'].map(k => `<button class="btn ${s.signalSources[k]?'btn-primary':'btn-outline'}" onclick="window.toggleSignalSource('${k}');renderTab()" style="font-size:.68rem;padding:4px 10px;">${k.toUpperCase()}</button>`).join('')}</div></div></div><button class="btn-save" onclick="saveSettings()">💾 Save AI Settings</button>`;
+  } else if (t === 'notifications') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">🔔 Alert Preferences</div>${toggle('notifyTradeOpen','Trade Opened Alerts')}${toggle('notifyTradeClose','Trade Closed Alerts')}${toggle('notifyStopLoss','Stop-Loss Hit Alerts')}${toggle('notifyTakeProfit','Take-Profit Hit Alerts')}${toggle('notifyDailySummary','Daily Summary Report')}${toggle('notifyWeekly','Weekly Performance Report')}<div class="setting-section-title" style="margin-top:16px;">Notification Channels</div>${toggle('notifyBrowser','Browser Push Notifications')}${toggle('notifyEmail','Email Notifications')}${toggle('notifySound','Sound Alerts')}</div><button class="btn-save" onclick="saveSettings()">💾 Save Notification Settings</button>`;
+  } else if (t === 'display') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">🎨 Display & Theme</div>${select('defaultTimeframe','Default Chart Timeframe',[{v:'1M',l:'1 Minute'},{v:'5M',l:'5 Minutes'},{v:'15M',l:'15 Minutes'},{v:'1H',l:'1 Hour'},{v:'4H',l:'4 Hours'},{v:'1D',l:'1 Day'}])}${select('defaultChartType','Default Chart Type',[{v:'candlestick',l:'Candlestick'},{v:'line',l:'Line Chart'}])}<div class="setting-row"><div class="setting-label"><div class="setting-label-title">Default Indicators</div></div><div class="setting-control" style="flex-wrap:wrap;gap:4px;">${['ema','bb','volume'].map(k => `<button class="btn ${s.defaultIndicators[k]?'btn-primary':'btn-outline'}" onclick="window.toggleIndicator('${k}');renderTab()" style="font-size:.68rem;padding:4px 10px;">${k.toUpperCase()}</button>`).join('')}</div></div>${toggle('compactMode','Compact/Dense Mode')}${select('animationSpeed','Animation Speed',[{v:'fast',l:'Fast'},{v:'normal',l:'Normal'},{v:'slow',l:'Slow'}])}${select('landingPage','Default Landing Page',[{v:'dashboard',l:'Dashboard'},{v:'charts',l:'Live Charts'},{v:'signals',l:'Signal Feed'}])}${toggle('sidebarCollapsed','Collapse Sidebar by Default')}${select('autoRefresh','Auto-Refresh Interval',[{v:'realtime',l:'Real-time'},{v:'5s',l:'5 Seconds'},{v:'10s',l:'10 Seconds'},{v:'30s',l:'30 Seconds'}])}</div><button class="btn-save" onclick="saveSettings()">💾 Save Display Settings</button>`;
+  } else if (t === 'security') {
+    c.innerHTML = `<div class="setting-section"><div class="setting-section-title">🔒 Account Security</div><div class="setting-row"><div class="setting-label"><div class="setting-label-title">Change Password</div><div class="setting-label-desc">Update your account password</div></div><div class="setting-control"><input class="setting-input" type="password" id="newPassword" placeholder="New password" style="width:160px;"/><button class="btn btn-primary" onclick="changePassword()">Update</button></div></div>${toggle('twoFactorEnabled','Two-Factor Authentication (2FA)')}${input('sessionTimeout','Session Timeout (minutes)','number','sm')}<div class="setting-row"><div class="setting-label"><div class="setting-label-title">Active Sessions</div><div class="setting-label-desc">Current browser • ${new Date().toLocaleDateString()}</div></div><div class="setting-control"><button class="btn btn-outline" onclick="showToast('info','Sessions','Only current session active')">View All</button></div></div><div class="setting-section-title" style="margin-top:16px;">Danger Zone</div><div class="setting-row" style="border-color:rgba(255,71,87,.2);"><div class="setting-label"><div class="setting-label-title" style="color:var(--red)">Delete Account</div><div class="setting-label-desc">Permanently delete all data</div></div><div class="setting-control"><button class="btn btn-danger" onclick="confirmAction('⚠️','Delete Account?','This action is IRREVERSIBLE. All data will be permanently deleted.','Delete Forever',()=>showToast('error','Account','Account deletion requested'),'red')">Delete</button></div></div></div><button class="btn-save" onclick="saveSettings()">💾 Save Security Settings</button>`;
+  }
+}
+
+async function changePassword() {
+  const newPass = document.getElementById('newPassword')?.value;
+  if (!newPass || newPass.length < 6) { showToast('error', 'Error', 'Password must be at least 6 characters'); return; }
+  try {
+    const user = auth.currentUser;
+    if (user) { await updatePassword(user, newPass); showToast('success', 'Updated', 'Password changed successfully'); }
+  } catch(e) { showToast('error', 'Error', 'Failed to update password. Re-login may be required.'); }
+}
+
+window.changePassword = changePassword;
+window.saveSettings = saveSettings;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'auth.html'; return; }
+  window.S.uid = user.uid;
+  window.S.userEmail = user.email || '';
+  try {
+    const docSnap = await getDoc(doc(db, 'users', user.uid));
+    const data = docSnap.exists() ? docSnap.data() : {};
+    const name = data.firstName || user.displayName || 'Trader';
+    document.getElementById('navAva').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = name;
+    document.getElementById('ddName').textContent = name;
+    document.getElementById('ddEmail').textContent = user.email;
+    if (data.firstName) window.S.settings.firstName = data.firstName;
+    if (data.lastName) window.S.settings.lastName = data.lastName;
+    if (data.settings) window.S.settings = { ...window.S.settings, ...data.settings };
+    document.getElementById('loader').classList.add('gone');
+    renderTab();
+  } catch(e) { console.error('Error:', e); }
+});
+
+window.doLogout = async () => { await signOut(auth); window.location.href = 'auth.html'; };
+</script>
+</body>
+</html>
