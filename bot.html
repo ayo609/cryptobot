@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QuantEdge — Bot Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#050d1a;--bg2:#07101f;--bg3:#091424;--bg4:#0c1830;
+  --card:rgba(255,255,255,.036);--card2:rgba(0,212,255,.055);
+  --cyan:#00d4ff;--cd:rgba(0,212,255,.14);--cg:rgba(0,212,255,.3);
+  --gold:#f0b429;--gd:rgba(240,180,41,.14);
+  --green:#00e676;--grd:rgba(0,230,118,.12);
+  --red:#ff4757;--rdd:rgba(255,71,87,.12);
+  --orange:#ff9f43;--ord:rgba(255,159,67,.12);
+  --purple:#a78bfa;--pd:rgba(167,139,250,.12);
+  --text:#e8f4fd;--tm:rgba(232,244,253,.55);--td:rgba(232,244,253,.28);
+  --b:rgba(0,212,255,.1);--bb:rgba(0,212,255,.25);--bbb:rgba(0,212,255,.45);
+  --fh:'Bricolage Grotesque',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+  --r:14px;--rs:9px;--rxs:6px;--nb:60px;--sb:230px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--cd);border-radius:2px;}
+a{text-decoration:none;color:inherit;}
+button,input,select{font-family:var(--fb);}
+#loader{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s;}
+#loader.gone{opacity:0;pointer-events:none;}
+.ld-logo{font-family:var(--fh);font-size:2rem;font-weight:800;}.ld-logo span{color:var(--cyan);text-shadow:0 0 24px var(--cg);}
+.ld-bar{width:220px;height:3px;background:var(--b);border-radius:2px;overflow:hidden;}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));animation:ldA 1.6s ease-in-out infinite;}
+@keyframes ldA{0%{width:0;margin-left:0}50%{width:100%;margin-left:0}100%{width:0;margin-left:100%}}
+.ld-sub{font-size:.75rem;color:var(--td);letter-spacing:2px;text-transform:uppercase;}
+.shell{display:grid;grid-template-columns:var(--sb) 1fr;grid-template-rows:var(--nb) 1fr;min-height:100vh;}
+.topbar{grid-column:1/-1;grid-row:1;display:flex;align-items:center;gap:12px;padding:0 20px;background:rgba(5,13,26,.96);backdrop-filter:blur(24px);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:300;}
+.tb-logo{font-family:var(--fh);font-size:1.3rem;font-weight:800;white-space:nowrap;}.tb-logo span{color:var(--cyan);text-shadow:0 0 16px var(--cg);}
+.tb-sep{width:1px;height:22px;background:var(--b);}
+.tb-page{font-size:.78rem;font-weight:600;color:var(--tm);padding:4px 12px;background:var(--card);border:1px solid var(--b);border-radius:50px;}
+.tb-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.ws-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:50px;font-size:.72rem;font-weight:700;border:1px solid;white-space:nowrap;}
+.ws-live{background:var(--grd);border-color:rgba(0,230,118,.25);color:var(--green);}
+.ws-rec{background:var(--ord);border-color:rgba(255,159,67,.25);color:var(--orange);}
+.ws-off{background:var(--rdd);border-color:rgba(255,71,87,.25);color:var(--red);}
+.ib{width:36px;height:36px;border-radius:9px;background:var(--card);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all .25s;position:relative;flex-shrink:0;}
+.ib:hover{border-color:var(--bb);background:var(--cd);}
+.ib .bdg{position:absolute;top:-5px;right:-5px;width:17px;height:17px;border-radius:50%;background:var(--red);font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid var(--bg);}
+.user-area{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;background:var(--card);border:1px solid var(--b);border-radius:50px;cursor:pointer;transition:.25s;}
+.user-area:hover{border-color:var(--bb);}
+.ua-av{width:28px;height:28px;border-radius:50%;background:var(--cyan);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:.78rem;font-weight:800;color:#050d1a;flex-shrink:0;}
+.ua-nm{font-size:.78rem;font-weight:600;color:var(--tm);}
+.dd{position:absolute;top:calc(var(--nb) + 4px);right:20px;background:#08152b;border:1px solid var(--bbb);border-radius:var(--r);padding:6px;min-width:190px;z-index:400;display:none;box-shadow:0 16px 48px rgba(0,0,0,.5);}
+.dd.open{display:block;animation:ddIn .2s ease;}
+@keyframes ddIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.dd-head{padding:10px 12px;border-bottom:1px solid var(--b);margin-bottom:5px;}
+.dd-name{font-weight:700;font-size:.86rem;}.dd-email{font-size:.7rem;color:var(--td);margin-top:2px;}
+.dd-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;font-size:.82rem;cursor:pointer;color:var(--tm);transition:.2s;}
+.dd-item:hover{background:var(--cd);color:var(--text);}
+.dd-item.red{color:var(--red);}.dd-item.red:hover{background:var(--rdd);}
+.sidebar{grid-column:1;grid-row:2;background:var(--bg2);border-right:1px solid var(--b);display:flex;flex-direction:column;position:sticky;top:var(--nb);height:calc(100vh - var(--nb));overflow-y:auto;overflow-x:hidden;}
+.sb-sec{font-size:.62rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--td);padding:18px 18px 7px;}
+.ni{display:flex;align-items:center;gap:12px;padding:10px 18px;font-size:.84rem;font-weight:500;color:var(--tm);transition:.22s;text-decoration:none;border-left:3px solid transparent;}
+.ni:hover{background:var(--cd);color:var(--text);}
+.ni.active{background:linear-gradient(90deg,var(--cd),transparent);color:var(--cyan);border-left-color:var(--cyan);}
+.ni-ic{font-size:1.05rem;width:20px;text-align:center;flex-shrink:0;}.ni-lb{flex:1;}
+.ni-bd{background:var(--cyan);color:#050d1a;font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:50px;}
+.sb-div{height:1px;background:var(--b);margin:8px 14px;}
+.sb-foot{margin-top:auto;padding:14px;border-top:1px solid var(--b);display:flex;flex-direction:column;gap:8px;}
+.sb-stat{background:var(--bg3);border:1px solid var(--b);border-radius:var(--rs);padding:10px 12px;}
+.sb-stat-l{font-size:.63rem;color:var(--td);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px;}
+.sb-stat-v{font-size:.84rem;font-weight:700;display:flex;align-items:center;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;animation:dp 1.8s infinite;flex-shrink:0;}
+.dg{background:var(--green);box-shadow:0 0 6px var(--green);}
+.do{background:var(--orange);box-shadow:0 0 6px var(--orange);}
+.dr{background:var(--red);box-shadow:0 0 6px var(--red);}
+.dc{background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.dy{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+@keyframes dp{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.6);}}
+.main{grid-column:2;grid-row:2;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px;}
+.card{background:var(--card);border:1px solid var(--b);border-radius:var(--r);overflow:hidden;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);flex-wrap:wrap;gap:10px;}
+.ct{font-family:var(--fh);font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:7px;}
+.ca{font-size:.72rem;color:var(--cyan);font-weight:600;cursor:pointer;}
+.ca:hover{text-decoration:underline;}
+.cb{padding:16px 18px;}.cb-sm{padding:12px 14px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g13{display:grid;grid-template-columns:1fr 2fr;gap:16px;}
+.bot-ring{width:100px;height:100px;border-radius:50%;border:4px solid var(--b);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:2.2rem;transition:all .5s;}
+.bot-ring.running{border-color:var(--green);box-shadow:0 0 35px rgba(0,230,118,.4),0 0 70px rgba(0,230,118,.15);animation:bpulse 2s infinite;}
+.bot-ring.paused{border-color:var(--orange);box-shadow:0 0 25px rgba(255,159,67,.3);}
+.bot-ring.stopped{border-color:var(--b);}
+@keyframes bpulse{0%,100%{box-shadow:0 0 35px rgba(0,230,118,.4);}50%{box-shadow:0 0 55px rgba(0,230,118,.6);}}
+.bot-status-text{font-family:var(--fh);font-size:1.2rem;font-weight:800;text-align:center;margin-bottom:6px;}
+.bot-status-sub{font-size:.75rem;color:var(--tm);text-align:center;margin-bottom:18px;line-height:1.5;}
+.bot-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
+.btn-bot{padding:12px 8px;border-radius:var(--rs);border:1.5px solid;font-size:.82rem;font-weight:700;cursor:pointer;transition:.28s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-bot:disabled{opacity:.3;cursor:not-allowed;}
+.btn-start{background:var(--grd);border-color:rgba(0,230,118,.3);color:var(--green);}
+.btn-start:hover:not(:disabled){background:rgba(0,230,118,.2);}
+.btn-pause{background:var(--ord);border-color:rgba(255,159,67,.3);color:var(--orange);}
+.btn-pause:hover:not(:disabled){background:rgba(255,159,67,.2);}
+.btn-stop{background:var(--rdd);border-color:rgba(255,71,87,.3);color:var(--red);}
+.btn-stop:hover:not(:disabled){background:rgba(255,71,87,.2);}
+.emergency-btn{width:100%;padding:14px;margin-top:8px;border-radius:var(--rs);border:2px solid rgba(255,71,87,.5);background:linear-gradient(135deg,rgba(255,71,87,.2),rgba(255,71,87,.05));color:var(--red);font-size:.85rem;font-weight:800;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.5px;}
+.emergency-btn:hover{background:rgba(255,71,87,.3);border-color:var(--red);box-shadow:0 0 20px rgba(255,71,87,.3);}
+.bot-metrics{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.metric-item{background:var(--bg3);border:1px solid var(--b);border-radius:var(--rs);padding:10px 12px;}
+.metric-label{font-size:.63rem;color:var(--td);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;}
+.metric-value{font-family:var(--fm);font-size:.85rem;font-weight:600;}
+.config-section{margin-bottom:16px;}
+.config-title{font-size:.7rem;color:var(--td);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+.config-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--b);border-radius:var(--rxs);margin-bottom:6px;}
+.config-label{font-size:.8rem;font-weight:500;}
+.config-control{display:flex;align-items:center;gap:8px;}
+.config-input{width:80px;padding:6px 10px;background:var(--bg4);border:1px solid var(--b);border-radius:var(--rxs);color:var(--text);font-family:var(--fm);font-size:.78rem;text-align:right;outline:none;transition:.25s;}
+.config-input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,212,255,.1);}
+.config-select{padding:6px 10px;background:var(--bg4);border:1px solid var(--b);border-radius:var(--rxs);color:var(--text);font-size:.78rem;outline:none;cursor:pointer;}
+.asset-toggle{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--bg3);border:1px solid var(--b);border-radius:var(--rxs);margin-bottom:6px;}
+.asset-toggle:hover{border-color:var(--bb);}
+.asset-toggle-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;font-weight:800;}
+.toggle-switch{width:38px;height:20px;border-radius:10px;cursor:pointer;position:relative;transition:.3s;flex-shrink:0;}
+.toggle-on{background:var(--cyan);box-shadow:0 0 10px var(--cd);}
+.toggle-off{background:var(--b);}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.3s;}
+.toggle-on::after{left:20px;}
+.position-item{padding:14px;background:var(--bg3);border:1px solid var(--b);border-radius:var(--rs);margin-bottom:8px;transition:all .25s;}
+.position-item:hover{border-color:var(--bb);}
+.pos-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.pos-pair-section{display:flex;align-items:center;gap:10px;}
+.pos-pair{font-family:var(--fh);font-size:.9rem;font-weight:700;}
+.pos-side{font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:50px;}
+.pos-long{background:var(--grd);color:var(--green);}
+.pos-short{background:var(--rdd);color:var(--red);}
+.pos-pnl{font-family:var(--fh);font-size:1.1rem;font-weight:800;}
+.pos-details{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.pos-detail{background:var(--bg4);border-radius:var(--rxs);padding:7px 10px;}
+.pos-detail-label{font-size:.6rem;color:var(--td);margin-bottom:2px;}
+.pos-detail-value{font-family:var(--fm);font-size:.75rem;font-weight:600;}
+.pos-actions{display:flex;gap:8px;}
+.pos-btn{padding:7px 14px;border-radius:var(--rxs);font-size:.73rem;font-weight:600;cursor:pointer;transition:.25s;border:1px solid;flex:1;}
+.pos-btn-close{background:var(--rdd);border-color:rgba(255,71,87,.3);color:var(--red);}
+.pos-btn-close:hover{background:rgba(255,71,87,.2);}
+.tab-group{display:flex;gap:4px;flex-wrap:wrap;}
+.tab-btn{padding:6px 14px;border-radius:50px;font-size:.73rem;font-weight:600;cursor:pointer;border:1px solid var(--b);background:transparent;color:var(--tm);transition:.22s;}
+.tab-btn.active{background:var(--cd);border-color:var(--bb);color:var(--cyan);}
+.logs-container{max-height:300px;overflow-y:auto;}
+.log-item{padding:8px 12px;border-bottom:1px solid var(--b);font-size:.75rem;display:flex;align-items:center;gap:8px;}
+.log-time{color:var(--td);font-family:var(--fm);font-size:.7rem;min-width:80px;}
+.log-type{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:50px;text-transform:uppercase;}
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
+.toast{display:flex;align-items:flex-start;gap:9px;padding:12px 15px;border-radius:12px;border:1px solid;backdrop-filter:blur(20px);font-size:.82rem;min-width:240px;max-width:310px;animation:tIn .38s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 28px rgba(0,0,0,.45);pointer-events:all;}
+@keyframes tIn{from{opacity:0;transform:translateX(36px) scale(.88);}to{opacity:1;transform:translateX(0) scale(1);}}
+.toast.out{animation:tOut .28s ease forwards;}
+@keyframes tOut{to{opacity:0;transform:translateX(36px) scale(.88);}}
+.modal-ov{position:fixed;inset:0;background:rgba(5,13,26,.88);backdrop-filter:blur(10px);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .28s;}
+.modal-ov.open{opacity:1;pointer-events:all;}
+.modal-box{background:#08152b;border:1px solid var(--bbb);border-radius:18px;padding:28px;width:100%;max-width:440px;transform:scale(.92);transition:transform .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.modal-ov.open .modal-box{transform:scale(1);}
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,14,29,.97);backdrop-filter:blur(20px);border-top:1px solid var(--b);padding:6px 0 max(6px,env(safe-area-inset-bottom));z-index:200;}
+.mn{display:flex;justify-content:space-around;}
+.mn-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;font-size:.58rem;color:var(--td);transition:.22s;text-decoration:none;}
+.mn-item.active,.mn-item:hover{color:var(--cyan);}
+.mn-icon{font-size:1.15rem;}
+@media(max-width:1100px){:root{--sb:62px;}.sb-sec,.ni-lb,.ni-bd,.sb-foot .sb-stat,.sb-btcp{display:none;}.ni{padding:13px;justify-content:center;}.sb-foot{padding:8px;}}
+@media(max-width:900px){.g3{grid-template-columns:1fr 1fr;}.g13{grid-template-columns:1fr;}}
+@media(max-width:768px){:root{--sb:0px;}.shell{grid-template-columns:1fr;}.sidebar{display:none;}.main{padding:12px;gap:12px;padding-bottom:75px;}.mob-nav{display:block;}.g2,.g3{grid-template-columns:1fr;}.pos-details{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div id="loader"><div class="ld-logo"><span>Quant</span>Edge</div><div class="ld-bar"><div class="ld-fill"></div></div><div class="ld-sub">Loading Bot Control…</div></div>
+<div class="modal-ov" id="confirmModal"><div class="modal-box"><div class="modal-icon" id="mIco" style="font-size:2.4rem;text-align:center;margin-bottom:12px;">⚠️</div><div class="modal-title" id="mTit" style="font-family:var(--fh);font-size:1.15rem;font-weight:800;text-align:center;margin-bottom:8px;">Confirm</div><div class="modal-msg" id="mMsg" style="font-size:.82rem;color:var(--tm);text-align:center;line-height:1.65;margin-bottom:22px;">Are you sure?</div><div class="modal-btns" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="modal-btn" style="padding:11px;border-radius:var(--rs);font-size:.85rem;font-weight:700;cursor:pointer;background:var(--card);border:1px solid var(--b);color:var(--tm);" onclick="window.closeModal()">Cancel</button><button class="modal-btn" id="mOk" style="padding:11px;border-radius:var(--rs);font-size:.85rem;font-weight:700;cursor:pointer;background:var(--rdd);border:1px solid rgba(255,71,87,.3);color:var(--red);" onclick="window.runConfirm()">Confirm</button></div></div></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="shell">
+<header class="topbar">
+  <div class="tb-logo"><span>Quant</span>Edge</div>
+  <div class="tb-sep"></div>
+  <div class="tb-page">🤖 Bot Control</div>
+  <div class="tb-right">
+    <div class="ws-pill ws-live" id="wsPill"><span class="dot dg" id="wsDot"></span><span id="wsText">Bybit Live</span></div>
+    <div class="ib" onclick="window.location.href='settings.html'">⚙️</div>
+    <div class="user-area" onclick="window.toggleDD()"><div class="ua-av" id="navAva">Q</div><span class="ua-nm" id="navName">Trader</span></div>
+  </div>
+</header>
+<aside class="sidebar">
+  <div class="sb-sec">Main</div>
+  <a class="ni" href="dashboard.html"><span class="ni-ic">🏠</span><span class="ni-lb">Dashboard</span></a>
+  <a class="ni" href="charts.html"><span class="ni-ic">📊</span><span class="ni-lb">Live Charts</span></a>
+  <a class="ni" href="signals.html"><span class="ni-ic">📡</span><span class="ni-lb">Signal Feed</span></a>
+  <a class="ni active" href="bot.html"><span class="ni-ic">🤖</span><span class="ni-lb">Bot Control</span></a>
+  <div class="sb-div"></div>
+  <div class="sb-sec">Analytics</div>
+  <a class="ni" href="performance.html"><span class="ni-ic">📈</span><span class="ni-lb">Performance</span></a>
+  <a class="ni" href="history.html"><span class="ni-ic">🕐</span><span class="ni-lb">Trade History</span></a>
+  <div class="sb-div"></div>
+  <a class="ni" href="settings.html"><span class="ni-ic">⚙️</span><span class="ni-lb">Settings</span></a>
+  <div class="ni" style="color:var(--red)" onclick="window.doLogout()"><span class="ni-ic">🚪</span><span class="ni-lb">Logout</span></div>
+</aside>
+<main class="main">
+  <div class="g13">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="ch"><div class="ct">🤖 Bot Status</div><span id="botStatusBadge" class="ca" style="color:var(--td)">STOPPED</span></div>
+        <div class="cb">
+          <div class="bot-ring stopped" id="botRing">🤖</div>
+          <div class="bot-status-text" id="botStatusText" style="color:var(--td)">STOPPED</div>
+          <div class="bot-status-sub" id="botStatusSub">Bot is idle. Configure settings and press Start.</div>
+          <div class="bot-controls">
+            <button class="btn-bot btn-start" id="btnStart" onclick="window.controlBot('start')">▶ Start</button>
+            <button class="btn-bot btn-pause" id="btnPause" onclick="window.controlBot('pause')" disabled>⏸ Pause</button>
+            <button class="btn-bot btn-stop" id="btnStop" onclick="window.controlBot('stop')" disabled>⏹ Stop</button>
+          </div>
+          <div class="bot-metrics">
+            <div class="metric-item"><div class="metric-label">Uptime</div><div class="metric-value" id="botUptime">—</div></div>
+            <div class="metric-item"><div class="metric-label">Trades Today</div><div class="metric-value" id="botTrades">0</div></div>
+            <div class="metric-item"><div class="metric-label">Today P&L</div><div class="metric-value" id="botPnl" style="color:var(--green)">+$0.00</div></div>
+            <div class="metric-item"><div class="metric-label">Win Rate</div><div class="metric-value" id="botWinRate" style="color:var(--cyan)">0%</div></div>
+          </div>
+          <button class="emergency-btn" onclick="window.emergencyStop()">🚨 EMERGENCY STOP — CLOSE ALL POSITIONS</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">⚡ Quick Actions</div></div>
+        <div class="cb-sm">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button onclick="window.quickAction('halt')" style="padding:10px;border-radius:var(--rs);border:1px solid var(--b);background:transparent;color:var(--orange);cursor:pointer;font-weight:600;">✋ Pause All Trading</button>
+            <button onclick="window.quickAction('reduce')" style="padding:10px;border-radius:var(--rs);border:1px solid var(--b);background:transparent;color:var(--gold);cursor:pointer;font-weight:600;">📉 Reduce Positions by 50%</button>
+            <button onclick="window.quickAction('conservative')" style="padding:10px;border-radius:var(--rs);border:1px solid var(--b);background:transparent;color:var(--cyan);cursor:pointer;font-weight:600;">🛡️ Switch to Conservative Mode</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="ch">
+          <div class="ct">⚙️ Trading Configuration</div>
+          <div class="tab-group">
+            <button class="tab-btn active" onclick="window.switchConfigTab('general',this)">General</button>
+            <button class="tab-btn" onclick="window.switchConfigTab('risk',this)">Risk</button>
+            <button class="tab-btn" onclick="window.switchConfigTab('strategy',this)">Strategy</button>
+          </div>
+        </div>
+        <div class="cb" id="configContent"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">📂 Active Positions</div><span class="ca" id="posCount">0 open</span></div>
+    <div class="cb-sm" id="posList"><div style="text-align:center;padding:28px;color:var(--td);">📂 No open positions</div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">📋 Bot Activity Log</div><button class="ca" onclick="window.clearLogs()">Clear</button></div>
+    <div class="cb-sm"><div class="logs-container" id="logContainer"><div style="text-align:center;padding:20px;color:var(--td);">No activity yet</div></div></div>
+  </div>
+</main>
+</div>
+<div class="mob-nav"><div class="mn">
+  <a class="mn-item" href="dashboard.html"><div class="mn-icon">🏠</div>Home</a>
+  <a class="mn-item" href="charts.html"><div class="mn-icon">📊</div>Charts</a>
+  <a class="mn-item active" href="bot.html"><div class="mn-icon">🤖</div>Bot</a>
+  <a class="mn-item" href="history.html"><div class="mn-icon">🕐</div>History</a>
+</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB3XI2ywFjSR2laS4gmP6ugvMpD_WLYyeg",
+  authDomain: "cryptobot-40f05.firebaseapp.com",
+  projectId: "cryptobot-40f05",
+  storageBucket: "cryptobot-40f05.firebasestorage.app",
+  messagingSenderId: "186287498883",
+  appId: "1:186287498883:web:de1143bfa58a789d0b5db6"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const cleanupIntervals = new Set();
+
+window.S = {
+  uid: null,
+  botState: 'stopped',
+  botStart: null,
+  configTab: 'general',
+  logs: [],
+  config: {
+    assets: { BTC: true, ETH: true, SOL: true },
+    tradeSize: 10,
+    maxTrades: 3,
+    stopLoss: 5,
+    takeProfit: 15,
+    trailingStop: false,
+    trailingDistance: 3,
+    dailyLossLimit: 5,
+    maxDrawdown: 20,
+    cooldownMinutes: 2,
+    maxTradesPerHour: 5,
+    signalThreshold: 50,
+    strategy: 'combined',
+    emaFast: 9,
+    emaSlow: 21,
+    rsiOversold: 35,
+    rsiOverbought: 65
+  }
+};
+
+function showToast(type, title, msg, dur = 4000) {
+  const w = document.getElementById('toastWrap');
+  const e = document.createElement('div');
+  const ic = { success: '✅', error: '❌', info: 'ℹ️', warn: '⚠️' };
+  e.className = 'toast t-' + type;
+  e.innerHTML = `<span class="t-ico">${ic[type]}</span><div class="t-body"><div class="t-title">${title}</div><div class="t-msg">${msg}</div></div>`;
+  w.appendChild(e);
+  setTimeout(() => { e.classList.add('out'); e.addEventListener('animationend', () => e.remove(), { once: true }); }, dur);
+}
+
+function confirmAction(icon, title, msg, btnText, callback, color = 'red') {
+  document.getElementById('mIco').textContent = icon;
+  document.getElementById('mTit').textContent = title;
+  document.getElementById('mMsg').textContent = msg;
+  const ok = document.getElementById('mOk');
+  ok.textContent = btnText;
+  ok.style.background = color === 'green' ? 'var(--grd)' : 'var(--rdd)';
+  ok.style.borderColor = color === 'green' ? 'rgba(0,230,118,.3)' : 'rgba(255,71,87,.3)';
+  ok.style.color = color === 'green' ? 'var(--green)' : 'var(--red)';
+  window.S.pendingCB = callback;
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+window.closeModal = () => document.getElementById('confirmModal').classList.remove('open');
+window.runConfirm = () => { window.closeModal(); if (window.S.pendingCB) { window.S.pendingCB(); window.S.pendingCB = null; } };
+window.toggleDD = () => document.getElementById('userDD')?.classList.toggle('open');
+
+window.controlBot = (action) => {
+  if (action === 'start') {
+    if (window.S.mode === 'real') {
+      confirmAction('⚠️', 'REAL TRADING MODE', 'You are about to trade with REAL funds. Continue?', 'Start Real Trading', () => applyBotState('running'));
+    } else {
+      applyBotState('running');
+    }
+  } else if (action === 'pause') {
+    applyBotState('paused');
+  } else {
+    confirmAction('⏹', 'Stop Bot', 'Stop the bot? Open positions remain until closed.', 'Stop Bot', () => applyBotState('stopped'));
+  }
+};
+
+window.emergencyStop = () => {
+  confirmAction('🚨', 'EMERGENCY STOP', 'This will CLOSE ALL positions immediately! Are you sure?', 'EXIT ALL NOW', () => {
+    applyBotState('stopped');
+    addLog('emergency', '🚨 Emergency stop activated — all positions closed');
+    showToast('warn', 'Emergency Stop', 'Bot stopped. Close positions from dashboard.');
+  });
+};
+
+window.quickAction = (action) => {
+  const actions = {
+    halt: () => { applyBotState('paused'); addLog('action', 'Trading halted by user'); },
+    reduce: () => { addLog('action', 'Reduce positions by 50% requested'); showToast('info', 'Quick Action', 'Reduce positions by 50%'); },
+    conservative: () => { window.S.config.tradeSize = Math.max(2, window.S.config.tradeSize / 2); renderConfig(); addLog('config', 'Switched to conservative mode — trade size halved'); }
+  };
+  if (actions[action]) actions[action]();
+};
+
+window.switchConfigTab = (tab, btn) => {
+  window.S.configTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderConfig();
+};
+
+function applyBotState(state) {
+  window.S.botState = state;
+  const ring = document.getElementById('botRing');
+  const text = document.getElementById('botStatusText');
+  const sub = document.getElementById('botStatusSub');
+  const badge = document.getElementById('botStatusBadge');
+  
+  ring.className = 'bot-ring ' + state;
+  
+  const states = {
+    running: { text: 'RUNNING', color: 'var(--green)', sub: 'Bot is active — monitoring markets 24/7', badge: '🟢 LIVE', badgeColor: 'var(--green)', start: true, pause: false, stop: false },
+    paused: { text: 'PAUSED', color: 'var(--orange)', sub: 'Trading paused — monitoring continues', badge: '🟡 PAUSED', badgeColor: 'var(--orange)', start: true, pause: true, stop: false },
+    stopped: { text: 'STOPPED', color: 'var(--td)', sub: 'Bot is idle. Configure and start.', badge: '⚫ STOPPED', badgeColor: 'var(--td)', start: false, pause: true, stop: true }
+  };
+  
+  const config = states[state];
+  text.textContent = config.text;
+  text.style.color = config.color;
+  sub.textContent = config.sub;
+  badge.textContent = config.badge;
+  badge.style.color = config.badgeColor;
+  
+  document.getElementById('btnStart').disabled = config.start;
+  document.getElementById('btnPause').disabled = config.pause;
+  document.getElementById('btnStop').disabled = config.stop;
+  
+  if (state === 'running') window.S.botStart = Date.now();
+  else { window.S.botStart = null; document.getElementById('botUptime').textContent = '—'; }
+  
+  addLog('bot', `Bot ${state}`);
+  saveBotConfig();
+}
+
+function addLog(type, message) {
+  window.S.logs.unshift({ type, message, time: new Date() });
+  if (window.S.logs.length > 100) window.S.logs.pop();
+  renderLogs();
+}
+
+function renderLogs() {
+  const container = document.getElementById('logContainer');
+  if (!window.S.logs.length) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--td);">No activity yet</div>';
+    return;
+  }
+  const colors = { trade: 'var(--green)', bot: 'var(--cyan)', error: 'var(--red)', config: 'var(--gold)', emergency: 'var(--red)', action: 'var(--orange)', signal: 'var(--purple)' };
+  container.innerHTML = window.S.logs.map(l => `
+    <div class="log-item">
+      <span class="log-time">${new Date(l.time).toLocaleTimeString()}</span>
+      <span class="log-type" style="background:${colors[l.type] || 'var(--b)'};color:${colors[l.type] || 'var(--text)'}">${l.type}</span>
+      <span>${l.message}</span>
+    </div>`).join('');
+}
+
+window.clearLogs = () => { window.S.logs = []; renderLogs(); };
+
+function renderConfig() {
+  const container = document.getElementById('configContent');
+  const tab = window.S.configTab;
+  
+  if (tab === 'general') {
+    container.innerHTML = `
+      <div class="config-section">
+        <div class="config-title">Trading Assets</div>
+        ${['BTC', 'ETH', 'SOL'].map(a => `
+          <div class="asset-toggle">
+            <div class="asset-toggle-icon" style="background:${a==='BTC'?'var(--gd)':a==='ETH'?'var(--pd)':'rgba(20,241,149,.15)'};color:${a==='BTC'?'var(--gold)':a==='ETH'?'var(--purple)':'#14f195'}">${a==='BTC'?'₿':a==='ETH'?'Ξ':'◎'}</div>
+            <span style="flex:1;font-weight:600;">${a}/USDT</span>
+            <div class="toggle-switch ${window.S.config.assets[a]?'toggle-on':'toggle-off'}" onclick="window.toggleAsset('${a}',this)"></div>
+          </div>`).join('')}
+      </div>
+      <div class="config-section">
+        <div class="config-title">Trade Settings</div>
+        <div class="config-row">
+          <span class="config-label">Trade Size (% of balance)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.tradeSize}" onchange="window.updateConfig('tradeSize',parseFloat(this.value))" min="1" max="100"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Max Concurrent Trades</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.maxTrades}" onchange="window.updateConfig('maxTrades',parseInt(this.value))" min="1" max="10"/>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Cooldown Between Trades</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.cooldownMinutes}" onchange="window.updateConfig('cooldownMinutes',parseInt(this.value))" min="0" max="60"/>
+            <span style="font-size:.7rem;color:var(--td)">min</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Max Trades Per Hour</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.maxTradesPerHour}" onchange="window.updateConfig('maxTradesPerHour',parseInt(this.value))" min="1" max="50"/>
+          </div>
+        </div>
+      </div>`;
+  } else if (tab === 'risk') {
+    container.innerHTML = `
+      <div class="config-section">
+        <div class="config-title">Risk Management</div>
+        <div class="config-row">
+          <span class="config-label">Stop-Loss (%)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.stopLoss}" onchange="window.updateConfig('stopLoss',parseFloat(this.value))" min="1" max="50" step="0.5"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Take-Profit (%)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.takeProfit}" onchange="window.updateConfig('takeProfit',parseFloat(this.value))" min="1" max="100" step="0.5"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Daily Loss Limit (%)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.dailyLossLimit}" onchange="window.updateConfig('dailyLossLimit',parseFloat(this.value))" min="1" max="50"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Max Drawdown (%)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.maxDrawdown}" onchange="window.updateConfig('maxDrawdown',parseFloat(this.value))" min="5" max="50"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Trailing Stop-Loss</span>
+          <div class="config-control">
+            <div class="toggle-switch ${window.S.config.trailingStop?'toggle-on':'toggle-off'}" onclick="window.toggleTrailingStop(this)"></div>
+          </div>
+        </div>
+        ${window.S.config.trailingStop ? `
+        <div class="config-row">
+          <span class="config-label">Trailing Distance (%)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.trailingDistance}" onchange="window.updateConfig('trailingDistance',parseFloat(this.value))" min="0.5" max="10" step="0.5"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>` : ''}
+      </div>`;
+  } else if (tab === 'strategy') {
+    container.innerHTML = `
+      <div class="config-section">
+        <div class="config-title">Strategy Configuration</div>
+        <div class="config-row">
+          <span class="config-label">Strategy Type</span>
+          <div class="config-control">
+            <select class="config-select" onchange="window.updateConfig('strategy',this.value)">
+              <option value="combined" ${window.S.config.strategy==='combined'?'selected':''}>Combined (All Indicators)</option>
+              <option value="ema" ${window.S.config.strategy==='ema'?'selected':''}>EMA Crossover Only</option>
+              <option value="rsi" ${window.S.config.strategy==='rsi'?'selected':''}>RSI Only</option>
+            </select>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">EMA Fast Period</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.emaFast}" onchange="window.updateConfig('emaFast',parseInt(this.value))" min="5" max="50"/>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">EMA Slow Period</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.emaSlow}" onchange="window.updateConfig('emaSlow',parseInt(this.value))" min="10" max="200"/>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">RSI Oversold Level</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.rsiOversold}" onchange="window.updateConfig('rsiOversold',parseInt(this.value))" min="15" max="40"/>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">RSI Overbought Level</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.rsiOverbought}" onchange="window.updateConfig('rsiOverbought',parseInt(this.value))" min="60" max="85"/>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Signal Threshold (%)</span>
+          <div class="config-control">
+            <input class="config-input" type="number" value="${window.S.config.signalThreshold}" onchange="window.updateConfig('signalThreshold',parseInt(this.value))" min="30" max="90"/>
+            <span style="font-size:.7rem;color:var(--td)">%</span>
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+window.toggleAsset = (asset, el) => {
+  window.S.config.assets[asset] = !window.S.config.assets[asset];
+  el.classList.toggle('toggle-on', window.S.config.assets[asset]);
+  el.classList.toggle('toggle-off', !window.S.config.assets[asset]);
+  saveBotConfig();
+  addLog('config', `${asset}/USDT ${window.S.config.assets[asset] ? 'enabled' : 'disabled'}`);
+};
+
+window.toggleTrailingStop = (el) => {
+  window.S.config.trailingStop = !window.S.config.trailingStop;
+  el.classList.toggle('toggle-on', window.S.config.trailingStop);
+  el.classList.toggle('toggle-off', !window.S.config.trailingStop);
+  saveBotConfig();
+  renderConfig();
+};
+
+window.updateConfig = (key, value) => {
+  window.S.config[key] = value;
+  saveBotConfig();
+  addLog('config', `${key} updated to ${value}`);
+  showToast('info', 'Config Updated', `${key} set to ${value}`);
+};
+
+async function saveBotConfig() {
+  if (!window.S.uid) return;
+  try {
+    await updateDoc(doc(db, 'users', window.S.uid), {
+      botConfig: window.S.config,
+      botState: window.S.botState,
+      lastUpdated: new Date()
+    });
+  } catch(e) { console.error('Save error:', e); }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'auth.html'; return; }
+  window.S.uid = user.uid;
+  try {
+    const docSnap = await getDoc(doc(db, 'users', user.uid));
+    const data = docSnap.exists() ? docSnap.data() : {};
+    const name = data.firstName || user.displayName || 'Trader';
+    
+    document.getElementById('navAva').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('navName').textContent = name;
+    
+    if (data.botState) { window.S.botState = data.botState; applyBotState(data.botState); }
+    if (data.botConfig) { window.S.config = { ...window.S.config, ...data.botConfig }; }
+    if (data.mode) window.S.mode = data.mode;
+    
+    document.getElementById('loader').classList.add('gone');
+    renderConfig();
+    showToast('success', 'Bot Control Ready', 'Configure your bot and start trading');
+    
+    const interval = setInterval(() => {
+      if (!window.S.botStart) return;
+      const sec = Math.round((Date.now() - window.S.botStart) / 1000);
+      const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+      document.getElementById('botUptime').textContent = `${h}h ${m}m ${s}s`;
+    }, 1000);
+    cleanupIntervals.add(interval);
+  } catch(e) { console.error('Init error:', e); }
+});
+
+window.doLogout = async () => { await signOut(auth); window.location.href = 'auth.html'; };
+
+window.addEventListener('beforeunload', () => {
+  cleanupIntervals.forEach(clearInterval);
+  cleanupIntervals.clear();
+});
+
+console.log('✅ QuantEdge Bot Control v2.0 Ready');
+</script>
+</body>
+</html>
